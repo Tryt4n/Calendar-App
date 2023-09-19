@@ -1,8 +1,8 @@
 import { CalendarProvider } from "./context/CalendarContext";
-// Actions
 // Components
 import CalendarHeader from "./Components/CalendarHeader";
 import CalendarGrid from "./Components/CalendarGrid";
+import NewEventModal from "./Components/NewEventModal";
 
 export default function App() {
   return (
@@ -336,6 +336,7 @@ export default function App() {
         </div>
       </div> */}
 
+      <NewEventModal />
       {/* <div className="modal">
         <div className="overlay"></div>
         <div className="modal-body">

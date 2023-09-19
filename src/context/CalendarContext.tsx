@@ -29,20 +29,43 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
 
   switch (type) {
     case REDUCER_ACTIONS.SHOW_PREVIOUS_MONTH: {
-      const newVisibleDates = handleFormat(currentMonth);
+      const previousMonth = addMonths(currentMonth, -1);
+      const newVisibleDates = handleFormat(previousMonth);
       return {
         ...state,
-        currentMonth: addMonths(currentMonth, -1),
+        currentMonth: previousMonth,
         visibleDates: newVisibleDates,
       };
     }
 
     case REDUCER_ACTIONS.SHOW_NEXT_MONTH: {
-      const newVisibleDates = handleFormat(currentMonth);
+      const nextMonth = addMonths(currentMonth, 1);
+      const newVisibleDates = handleFormat(nextMonth);
       return {
         ...state,
-        currentMonth: addMonths(currentMonth, 1),
+        currentMonth: nextMonth,
         visibleDates: newVisibleDates,
+      };
+    }
+
+    case REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL: {
+      return {
+        ...state,
+        isModalOpen: true,
+      };
+    }
+
+    case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL: {
+      return {
+        ...state,
+        isModalOpen: false,
+      };
+    }
+
+    case REDUCER_ACTIONS.ADD_NEW_EVENT: {
+      console.log("add new event");
+      return {
+        ...state,
       };
     }
 
@@ -59,6 +82,7 @@ const visibleDates = handleFormat(currentDate);
 const initState = {
   currentMonth: currentDate,
   visibleDates: visibleDates,
+  isModalOpen: false,
 };
 
 export function CalendarProvider({ children }: ChildrenType) {

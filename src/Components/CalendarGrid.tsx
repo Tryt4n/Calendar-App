@@ -1,4 +1,5 @@
 import { useCalendar } from "../context/useCalendar";
+import { REDUCER_ACTIONS } from "../context/ContextTypes";
 
 // date-fns
 import format from "date-fns/format";
@@ -7,15 +8,12 @@ import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
 
 export default function CalendarGrid() {
-  const { state } = useCalendar();
+  const { state, dispatch } = useCalendar();
 
   return (
     <div className="days">
       {state.visibleDates.map((date, index) => (
         <div
-          //   className={`day${!isSameMonth(date, state.currentMonth) ? " non-month-day" : ""}${
-          //     isBefore(date, state.currentMonth) ? " old-month-day" : ""
-          //   }`}
           className={`day${!isSameMonth(date, state.currentMonth) ? " non-month-day" : ""}${
             date.getDate() < state.currentMonth.getDate() ? " old-month-day" : ""
           }`}
@@ -23,9 +21,17 @@ export default function CalendarGrid() {
         >
           <div className="day-header">
             {index < 7 && <div className="week-name">{format(date, "EEE", { locale: pl })}</div>}
-            <div className={`day-number${isSameDay(date, state.currentMonth) ? " today" : ""}`}>
+            <div className={`day-number${isSameDay(date, new Date()) ? " today" : ""}`}>
               {format(date, "d")}
             </div>
+            <button
+              className="add-event-btn"
+              onClick={() => dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL })}
+            >
+              +
+            </button>
+
+            <div className="events"></div>
           </div>
         </div>
       ))}
