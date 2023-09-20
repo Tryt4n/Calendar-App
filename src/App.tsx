@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CalendarProvider } from "./context/CalendarContext";
 // Components
 import CalendarHeader from "./Components/CalendarHeader";
@@ -5,12 +6,14 @@ import CalendarGrid from "./Components/CalendarGrid";
 import NewEventModal from "./Components/NewEventModal";
 
 export default function App() {
+  const [selectedDate, setSelectedDate] = useState({});
+
   return (
     <CalendarProvider>
       <div className="calendar">
         <CalendarHeader />
 
-        <CalendarGrid />
+        <CalendarGrid setSelectedDate={setSelectedDate} />
         {/* <div className="days">
           <div className="day non-month-day old-month-day">
             <div className="day-header">
@@ -336,7 +339,10 @@ export default function App() {
         </div>
       </div> */}
 
-      <NewEventModal />
+      <NewEventModal
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
       {/* <div className="modal">
         <div className="overlay"></div>
         <div className="modal-body">

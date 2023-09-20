@@ -1,5 +1,5 @@
 import { useCalendar } from "../context/useCalendar";
-import { REDUCER_ACTIONS } from "../context/ContextTypes";
+import { REDUCER_ACTIONS } from "../types/ContextTypes";
 
 // date-fns
 import format from "date-fns/format";
@@ -7,7 +7,10 @@ import isSameDay from "date-fns/isSameDay";
 import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
 
-export default function CalendarGrid() {
+type CalendarGridType = {
+  setSelectedDate: React.Dispatch<React.SetStateAction<object>>;
+};
+export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
   const { state, dispatch } = useCalendar();
 
   return (
@@ -26,7 +29,11 @@ export default function CalendarGrid() {
             </div>
             <button
               className="add-event-btn"
-              onClick={() => dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL })}
+              // onClick={() => dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL })}
+              onClick={() => {
+                dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
+                setSelectedDate(date);
+              }}
             >
               +
             </button>

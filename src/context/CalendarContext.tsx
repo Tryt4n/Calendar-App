@@ -1,5 +1,5 @@
 // React
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer } from "react";
 //types
 import {
   ContextType,
@@ -7,7 +7,7 @@ import {
   ReducerStateType,
   ReducerActionsType,
   REDUCER_ACTIONS,
-} from "./ContextTypes";
+} from "../types/ContextTypes";
 // date-fns
 import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
@@ -25,7 +25,7 @@ function handleFormat(date: Date) {
 
 function reducer(state: ReducerStateType, action: ReducerActionsType) {
   const { type } = action;
-  const { currentMonth } = state;
+  const { currentMonth, events } = state;
 
   switch (type) {
     case REDUCER_ACTIONS.SHOW_PREVIOUS_MONTH: {
@@ -63,9 +63,10 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     }
 
     case REDUCER_ACTIONS.ADD_NEW_EVENT: {
-      console.log("add new event");
+      const newEvent = action.payload;
       return {
         ...state,
+        events: [...events, newEvent],
       };
     }
 
@@ -79,10 +80,11 @@ const CalendarContext = createContext<ContextType | null>(null);
 const currentDate = new Date();
 const visibleDates = handleFormat(currentDate);
 
-const initState = {
+const initState: ReducerStateType = {
   currentMonth: currentDate,
   visibleDates: visibleDates,
   isModalOpen: false,
+  events: [],
 };
 
 export function CalendarProvider({ children }: ChildrenType) {
@@ -92,6 +94,10 @@ export function CalendarProvider({ children }: ChildrenType) {
     state: state,
     dispatch: dispatch,
   };
+
+  // useEffect(() => {
+  //   console.log(state);
+  // }, [state]);
 
   return <CalendarContext.Provider value={contextValues}>{children}</CalendarContext.Provider>;
 }

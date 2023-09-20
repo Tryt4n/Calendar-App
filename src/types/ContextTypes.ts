@@ -1,4 +1,5 @@
 import { ReactElement } from "react";
+import { NewEventType } from "./NewEventType";
 
 // Types
 type ActionsType = {
@@ -13,7 +14,7 @@ export type ReducerStateType = {
   currentMonth: Date;
   visibleDates: Date[];
   isModalOpen: boolean;
-  events?: string[];
+  events: NewEventType[];
 };
 
 export type ReducerActionsType =
@@ -31,6 +32,7 @@ export type ReducerActionsType =
     }
   | {
       type: "addNewEvent";
+      payload: NewEventType;
     };
 
 export type ContextType = {
