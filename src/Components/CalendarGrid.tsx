@@ -1,24 +1,31 @@
 import { useCalendar } from "../context/useCalendar";
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
-
 // date-fns
 import format from "date-fns/format";
+import isBefore from "date-fns/isBefore";
 import isSameDay from "date-fns/isSameDay";
 import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
 
 type CalendarGridType = {
-  setSelectedDate: React.Dispatch<React.SetStateAction<object>>;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
 };
 export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
   const { state, dispatch } = useCalendar();
+
+  function openNewEventModal(date: Date) {
+    dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
+    setSelectedDate(date);
+  }
 
   return (
     <div className="days">
       {state.visibleDates.map((date, index) => (
         <div
           className={`day${!isSameMonth(date, state.currentMonth) ? " non-month-day" : ""}${
-            date.getDate() < state.currentMonth.getDate() ? " old-month-day" : ""
+            isBefore(date, new Date()) && !isSameDay(date, state.currentMonth)
+              ? " old-month-day"
+              : ""
           }`}
           key={date.toISOString()}
         >
@@ -29,11 +36,7 @@ export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
             </div>
             <button
               className="add-event-btn"
-              // onClick={() => dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL })}
-              onClick={() => {
-                dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
-                setSelectedDate(date);
-              }}
+              onClick={() => openNewEventModal(date)}
             >
               +
             </button>

@@ -1,8 +1,7 @@
 export type NewEventType = {
-  name: string;
+  eventDate: Date | object;
+  eventName: string;
   allDayStatus: boolean;
-  //   startTime?: Date;
-  //   endTime?: Date;
   startTime?: string;
   endTime?: string;
   eventColor: string;

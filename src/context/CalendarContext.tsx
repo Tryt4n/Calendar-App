@@ -1,5 +1,5 @@
 // React
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useReducer } from "react";
 //types
 import {
   ContextType,
@@ -44,6 +44,16 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
       return {
         ...state,
         currentMonth: nextMonth,
+        visibleDates: newVisibleDates,
+      };
+    }
+
+    case REDUCER_ACTIONS.SHOW_CURRENT_MONTH: {
+      const currentMonth = new Date();
+      const newVisibleDates = handleFormat(currentMonth);
+      return {
+        ...state,
+        currentMonth: currentMonth,
         visibleDates: newVisibleDates,
       };
     }
@@ -94,10 +104,6 @@ export function CalendarProvider({ children }: ChildrenType) {
     state: state,
     dispatch: dispatch,
   };
-
-  // useEffect(() => {
-  //   console.log(state);
-  // }, [state]);
 
   return <CalendarContext.Provider value={contextValues}>{children}</CalendarContext.Provider>;
 }

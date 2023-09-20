@@ -13,7 +13,12 @@ export default function CalendarHeader() {
 
   return (
     <div className="header">
-      <button className="btn">Today</button>
+      <button
+        className="btn"
+        onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_CURRENT_MONTH })}
+      >
+        Today
+      </button>
       <div>
         <button
           className="month-change-btn"

@@ -6,7 +6,7 @@ import CalendarGrid from "./Components/CalendarGrid";
 import NewEventModal from "./Components/NewEventModal";
 
 export default function App() {
-  const [selectedDate, setSelectedDate] = useState({});
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
     <CalendarProvider>
@@ -339,10 +339,7 @@ export default function App() {
         </div>
       </div> */}
 
-      <NewEventModal
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-      />
+      <NewEventModal selectedDate={selectedDate} />
       {/* <div className="modal">
         <div className="overlay"></div>
         <div className="modal-body">
