@@ -23,9 +23,7 @@ export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
       {state.visibleDates.map((date, index) => (
         <div
           className={`day${!isSameMonth(date, state.currentMonth) ? " non-month-day" : ""}${
-            isBefore(date, new Date()) && !isSameDay(date, state.currentMonth)
-              ? " old-month-day"
-              : ""
+            isBefore(date, new Date()) && !isSameDay(date, new Date()) ? " old-month-day" : ""
           }`}
           key={date.toISOString()}
         >
@@ -41,7 +39,8 @@ export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
               +
             </button>
 
-            <div className="events"></div>
+            {/* <div className="events"></div> */}
+            {state.events.length > 0 && <div className="events"></div>}
           </div>
         </div>
       ))}

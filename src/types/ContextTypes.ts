@@ -5,6 +5,8 @@ import { NewEventType } from "./NewEventType";
 type ActionsType = {
   SHOW_PREVIOUS_MONTH: "showPreviousMonth";
   SHOW_NEXT_MONTH: "showNextMonth";
+  SHOW_PREVIOUS_YEAR: "showPreviousYear";
+  SHOW_NEXT_YEAR: "showNextYear";
   SHOW_CURRENT_MONTH: "showCurrentMonth";
   OPEN_NEW_TASK_MODAL: "openNewTaskModal";
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal";
@@ -24,6 +26,12 @@ export type ReducerActionsType =
     }
   | {
       type: "showNextMonth";
+    }
+  | {
+      type: "showPreviousYear";
+    }
+  | {
+      type: "showNextYear";
     }
   | {
       type: "showCurrentMonth";
@@ -50,6 +58,8 @@ export type ChildrenType = { children?: ReactElement | ReactElement[] };
 export const REDUCER_ACTIONS: ActionsType = {
   SHOW_PREVIOUS_MONTH: "showPreviousMonth",
   SHOW_NEXT_MONTH: "showNextMonth",
+  SHOW_PREVIOUS_YEAR: "showPreviousYear",
+  SHOW_NEXT_YEAR: "showNextYear",
   SHOW_CURRENT_MONTH: "showCurrentMonth",
   OPEN_NEW_TASK_MODAL: "openNewTaskModal",
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal",

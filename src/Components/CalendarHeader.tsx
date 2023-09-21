@@ -13,24 +13,38 @@ export default function CalendarHeader() {
 
   return (
     <div className="header">
-      <button
-        className="btn"
-        onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_CURRENT_MONTH })}
-      >
-        Today
-      </button>
       <div>
+        <button
+          className="month-change-btn"
+          onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_PREVIOUS_YEAR })}
+        >
+          &#171;
+        </button>
         <button
           className="month-change-btn"
           onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_PREVIOUS_MONTH })}
         >
-          &lt;
+          &#8249;
         </button>
+
+        <button
+          className="btn"
+          onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_CURRENT_MONTH })}
+        >
+          Today
+        </button>
+
         <button
           className="month-change-btn"
           onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_NEXT_MONTH })}
         >
-          &gt;
+          &#8250;
+        </button>
+        <button
+          className="month-change-btn"
+          onClick={() => dispatch({ type: REDUCER_ACTIONS.SHOW_NEXT_YEAR })}
+        >
+          &#187;
         </button>
       </div>
       <span className="month-title">{displayedDate}</span>

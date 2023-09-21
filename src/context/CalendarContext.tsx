@@ -27,50 +27,44 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
   const { type } = action;
   const { currentMonth, events } = state;
 
+  function handleDateChange(date: Date, value = 0) {
+    const newDate = addMonths(date, value);
+    const newVisibleDate = handleFormat(newDate);
+    return {
+      ...state,
+      currentMonth: newDate,
+      visibleDates: newVisibleDate,
+    };
+  }
+
+  function handleNewTaskModalOpen(boolean: boolean) {
+    return {
+      ...state,
+      isModalOpen: boolean,
+    };
+  }
+
   switch (type) {
-    case REDUCER_ACTIONS.SHOW_PREVIOUS_MONTH: {
-      const previousMonth = addMonths(currentMonth, -1);
-      const newVisibleDates = handleFormat(previousMonth);
-      return {
-        ...state,
-        currentMonth: previousMonth,
-        visibleDates: newVisibleDates,
-      };
-    }
+    case REDUCER_ACTIONS.SHOW_PREVIOUS_MONTH:
+      return handleDateChange(currentMonth, -1);
 
-    case REDUCER_ACTIONS.SHOW_NEXT_MONTH: {
-      const nextMonth = addMonths(currentMonth, 1);
-      const newVisibleDates = handleFormat(nextMonth);
-      return {
-        ...state,
-        currentMonth: nextMonth,
-        visibleDates: newVisibleDates,
-      };
-    }
+    case REDUCER_ACTIONS.SHOW_NEXT_MONTH:
+      return handleDateChange(currentMonth, 1);
 
-    case REDUCER_ACTIONS.SHOW_CURRENT_MONTH: {
-      const currentMonth = new Date();
-      const newVisibleDates = handleFormat(currentMonth);
-      return {
-        ...state,
-        currentMonth: currentMonth,
-        visibleDates: newVisibleDates,
-      };
-    }
+    case REDUCER_ACTIONS.SHOW_PREVIOUS_YEAR:
+      return handleDateChange(currentMonth, -12);
 
-    case REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL: {
-      return {
-        ...state,
-        isModalOpen: true,
-      };
-    }
+    case REDUCER_ACTIONS.SHOW_NEXT_YEAR:
+      return handleDateChange(currentMonth, 12);
 
-    case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL: {
-      return {
-        ...state,
-        isModalOpen: false,
-      };
-    }
+    case REDUCER_ACTIONS.SHOW_CURRENT_MONTH:
+      return handleDateChange(new Date());
+
+    case REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL:
+      return handleNewTaskModalOpen(true);
+
+    case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL:
+      return handleNewTaskModalOpen(false);
 
     case REDUCER_ACTIONS.ADD_NEW_EVENT: {
       const newEvent = action.payload;
