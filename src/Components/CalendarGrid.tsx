@@ -1,4 +1,6 @@
+import React from "react";
 import { useCalendar } from "../context/useCalendar";
+// Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 // date-fns
 import format from "date-fns/format";
@@ -39,8 +41,36 @@ export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
               +
             </button>
 
-            {/* <div className="events"></div> */}
-            {state.events.length > 0 && <div className="events"></div>}
+            {state.events.length > 0 &&
+              state.events.some((event) => isSameDay(event.eventDate as Date, date)) && (
+                <div className="events">
+                  {state.events
+                    .filter((event) => isSameDay(event.eventDate as Date, date))
+                    .map((task) => (
+                      <React.Fragment key={task.eventName}>
+                        <button
+                          className={`event ${task.eventColor}${
+                            task.allDayStatus ? " all-day-event" : ""
+                          }`}
+                          onClick={() =>
+                            dispatch({
+                              type: REDUCER_ACTIONS.OPEN_EXISTING_TASK_MODAL,
+                              payload: task,
+                            })
+                          }
+                        >
+                          {!task.allDayStatus && (
+                            <>
+                              <div className={`color-dot ${task.eventColor}`}></div>
+                              <div className="event-time">{task.startTime}</div>
+                            </>
+                          )}
+                          <div className="event-name">{task.eventName}</div>
+                        </button>
+                      </React.Fragment>
+                    ))}
+                </div>
+              )}
           </div>
         </div>
       ))}

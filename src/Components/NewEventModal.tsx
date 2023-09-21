@@ -104,13 +104,20 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
   }
 
   function addNewEvent() {
-    dispatch({
-      type: REDUCER_ACTIONS.ADD_NEW_EVENT,
-      payload: newEvent,
-    });
-    dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
+    //? Checking to see if a new event with the same name already exists in the `state`
+    const isDuplicateEvent = state.events.some((event) => event.eventName === newEvent.eventName);
 
-    setNewEvent(newEventInitState);
+    if (isDuplicateEvent) {
+      alert("Istnieje już wydarzenie o takiej samej nazwie!");
+    } else {
+      dispatch({
+        type: REDUCER_ACTIONS.ADD_NEW_EVENT,
+        payload: newEvent,
+      });
+      dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
+      //? Reset `newEvent`
+      setNewEvent(newEventInitState);
+    }
   }
 
   //? Formats newEvent.endTime to one minute greater than newEvent.startTime

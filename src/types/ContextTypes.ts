@@ -10,6 +10,7 @@ type ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth";
   OPEN_NEW_TASK_MODAL: "openNewTaskModal";
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal";
+  OPEN_EXISTING_TASK_MODAL: "openExistingTaskModal";
   ADD_NEW_EVENT: "addNewEvent";
 };
 
@@ -43,6 +44,10 @@ export type ReducerActionsType =
       type: "closeNewTaskModal";
     }
   | {
+      type: "openExistingTaskModal";
+      payload: NewEventType;
+    }
+  | {
       type: "addNewEvent";
       payload: NewEventType;
     };
@@ -63,5 +68,6 @@ export const REDUCER_ACTIONS: ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth",
   OPEN_NEW_TASK_MODAL: "openNewTaskModal",
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal",
+  OPEN_EXISTING_TASK_MODAL: "openExistingTaskModal",
   ADD_NEW_EVENT: "addNewEvent",
 };

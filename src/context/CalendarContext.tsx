@@ -1,5 +1,5 @@
 // React
-import { createContext, useReducer } from "react";
+import { createContext, useEffect, useReducer } from "react";
 //types
 import {
   ContextType,
@@ -66,6 +66,14 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL:
       return handleNewTaskModalOpen(false);
 
+    case REDUCER_ACTIONS.OPEN_EXISTING_TASK_MODAL:
+      // const date = action.payload;
+      // console.log(date);
+      return {
+        ...state,
+        isModalOpen: true,
+      };
+
     case REDUCER_ACTIONS.ADD_NEW_EVENT: {
       const newEvent = action.payload;
       return {
@@ -98,6 +106,8 @@ export function CalendarProvider({ children }: ChildrenType) {
     state: state,
     dispatch: dispatch,
   };
+
+  useEffect(() => console.log(state), [state]);
 
   return <CalendarContext.Provider value={contextValues}>{children}</CalendarContext.Provider>;
 }
