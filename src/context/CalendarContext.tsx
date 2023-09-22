@@ -28,9 +28,6 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
   const { type } = action;
   const { currentMonth, events } = state;
 
-  // let updatedEvent: NewEventType;
-  let updatedEvents: NewEventType[];
-
   function handleDateChange(date: Date, value = 0) {
     const newDate = addMonths(date, value);
     const newVisibleDate = handleFormat(newDate);
@@ -70,16 +67,26 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL:
       return handleNewTaskModalOpen(false);
 
-    case REDUCER_ACTIONS.EDIT_EVENT:
-      // updatedEvent = action.payload;
-      updatedEvents = events.map((event) =>
-        event.id === action.payload.id ? action.payload : event
+    case REDUCER_ACTIONS.EDIT_EVENT: {
+      const editingEvent = action.payload;
+      const updatedEvents = events.map((event) =>
+        event.id === editingEvent.id ? editingEvent : event
       );
       return {
         ...state,
-        // isModalOpen: false,
         events: updatedEvents,
       };
+    }
+
+    case REDUCER_ACTIONS.DELETE_EVENT: {
+      const deletingEvent = action.payload;
+      const updatedEvents = state.events.filter((event) => event.id !== deletingEvent.id);
+      return {
+        ...state,
+        events: updatedEvents,
+        isModalOpen: false,
+      };
+    }
 
     case REDUCER_ACTIONS.ADD_NEW_EVENT: {
       const newEvent = action.payload;
@@ -119,10 +126,8 @@ const initState: ReducerStateType = {
 export function CalendarProvider({ children }: ChildrenType) {
   const [state, dispatch] = useReducer(reducer, initState);
 
-  //!
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [editedEvent, setEditedEvent] = useState<NewEventType>();
-  //!
 
   const contextValues = {
     state: state,

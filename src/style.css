@@ -373,6 +373,16 @@ body {
   margin-bottom: 1rem;
 }
 
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  & > * {
+    margin-bottom: 0;
+  }
+}
+
 .form-group.checkbox {
   flex-direction: row;
   align-items: center;
@@ -461,4 +471,16 @@ body {
 
 .color-radio[value="green"] + label::before {
   background-color: var(--green-background);
+}
+
+input,
+input + label {
+  cursor: pointer;
+}
+
+input:disabled,
+input:disabled + label,
+input[type="checkbox"]:disabled,
+input[type="checkbox"]:disabled + label {
+  cursor: not-allowed;
 }

@@ -26,6 +26,7 @@ export default function NewEventModal() {
     eventDate: selectedDate,
     eventName: "",
     allDayStatus: false,
+    everyYear: false,
     startTime: undefined,
     endTime: undefined,
     eventColor: "blue",
@@ -60,10 +61,14 @@ export default function NewEventModal() {
     const sanitizedInputName = inputName.trimStart(); //? Delete space at the beginning of the input name
 
     if (editedEvent) {
-      setEditedEvent((prevState) => ({
-        ...(prevState as NewEventType),
-        eventName: sanitizedInputName,
-      }));
+      setEditedEvent((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            eventName: sanitizedInputName,
+          };
+        }
+      });
     } else {
       setNewEvent((prevState) => ({
         ...prevState,
@@ -83,20 +88,28 @@ export default function NewEventModal() {
         });
 
         //? Reset startTime and endTime
-        setEditedEvent((prevState) => ({
-          ...(prevState as NewEventType),
-          allDayStatus: true,
-          startTime: undefined,
-          endTime: undefined,
-        }));
+        setEditedEvent((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              allDayStatus: true,
+              startTime: undefined,
+              endTime: undefined,
+            };
+          }
+        });
       } else {
         //? If the checkbox is unchecked, restore the previous startTime and endTime values
-        setEditedEvent((prevState) => ({
-          ...(prevState as NewEventType),
-          allDayStatus: false,
-          startTime: previousTimeValues.startTime,
-          endTime: previousTimeValues.endTime,
-        }));
+        setEditedEvent((prevState) => {
+          if (prevState) {
+            return {
+              ...prevState,
+              allDayStatus: false,
+              startTime: previousTimeValues.startTime,
+              endTime: previousTimeValues.endTime,
+            };
+          }
+        });
       }
     } else {
       if (e.target.checked) {
@@ -125,12 +138,30 @@ export default function NewEventModal() {
     }
   }
 
+  function handleEveryYearEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.checked) {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        everyYear: true,
+      }));
+    } else {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        everyYear: false,
+      }));
+    }
+  }
+
   function handleEventTimeChange(e: ChangeEvent<HTMLInputElement>, fieldName: string) {
     if (editedEvent) {
-      setEditedEvent((prevState) => ({
-        ...(prevState as NewEventType),
-        [fieldName]: e.target.value,
-      }));
+      setEditedEvent((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            [fieldName]: e.target.value,
+          };
+        }
+      });
     } else {
       setNewEvent((prevState) => ({
         ...prevState,
@@ -141,10 +172,14 @@ export default function NewEventModal() {
 
   function handleEventColorChange(e: ChangeEvent<HTMLInputElement>) {
     if (editedEvent) {
-      setEditedEvent((prevState) => ({
-        ...(prevState as NewEventType),
-        eventColor: e.target.value,
-      }));
+      setEditedEvent((prevState) => {
+        if (prevState) {
+          return {
+            ...prevState,
+            eventColor: e.target.value,
+          };
+        }
+      });
     } else {
       setNewEvent((prevState) => ({
         ...prevState,
@@ -179,6 +214,7 @@ export default function NewEventModal() {
 
     const isDuplicateEvent = state.events.some(
       (event) =>
+        event.id !== editedEvent.id && //? Checking if it's not `editedEvent`
         event.eventName === editedEvent.eventName &&
         event.eventDate.toISOString() === editedEvent.eventDate.toISOString()
     );
@@ -194,6 +230,13 @@ export default function NewEventModal() {
       //? Reset `editedEvent`
       setEditedEvent(undefined);
     }
+  }
+
+  function deleteEvent() {
+    if (typeof editedEvent !== "undefined") {
+      dispatch({ type: REDUCER_ACTIONS.DELETE_EVENT, payload: editedEvent });
+    }
+    setEditedEvent(undefined);
   }
 
   //? Formats newEvent.endTime to one minute greater than newEvent.startTime
@@ -240,15 +283,28 @@ export default function NewEventModal() {
                   onChange={handleEventNameChange}
                 />
               </div>
-              <div className="form-group checkbox">
-                <input
-                  type="checkbox"
-                  name="all-day"
-                  id="all-day"
-                  checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
-                  onChange={handleAllDayEventCheckboxChange}
-                />
-                <label htmlFor="all-day">All Day?</label>
+              <div className="checkbox-wrapper">
+                <div className="form-group checkbox">
+                  <input
+                    type="checkbox"
+                    name="all-day"
+                    id="all-day"
+                    checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                    onChange={handleAllDayEventCheckboxChange}
+                  />
+                  <label htmlFor="all-day">All Day?</label>
+                </div>
+                <div className="form-group checkbox">
+                  <input
+                    type="checkbox"
+                    name="every-year"
+                    id="every-year"
+                    checked={editedEvent ? editedEvent.everyYear : newEvent.everyYear}
+                    disabled={editedEvent !== undefined}
+                    onChange={handleEveryYearEventCheckboxChange}
+                  />
+                  <label htmlFor="every-year">Every Year?</label>
+                </div>
               </div>
               <div className="row">
                 <div className="form-group">
@@ -272,7 +328,11 @@ export default function NewEventModal() {
                     value={editedEvent ? editedEvent.endTime : undefined}
                     disabled={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
                     required={editedEvent ? !editedEvent.allDayStatus : !newEvent.allDayStatus}
-                    min={formatNewEndTimeDate(newEvent.startTime as string)}
+                    min={
+                      typeof newEvent.startTime === "string"
+                        ? formatNewEndTimeDate(newEvent.startTime)
+                        : undefined
+                    }
                     onChange={(e) => handleEventTimeChange(e, "endTime")}
                   />
                 </div>
@@ -338,6 +398,7 @@ export default function NewEventModal() {
                 <button
                   className="btn btn-delete"
                   type="button"
+                  onClick={deleteEvent}
                 >
                   Delete
                 </button>

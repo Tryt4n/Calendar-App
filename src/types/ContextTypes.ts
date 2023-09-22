@@ -12,6 +12,7 @@ type ActionsType = {
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal";
   EDIT_EVENT: "editEvent";
   ADD_NEW_EVENT: "addNewEvent";
+  DELETE_EVENT: "deleteEvent";
 };
 
 export type ReducerStateType = {
@@ -50,6 +51,10 @@ export type ReducerActionsType =
   | {
       type: "addNewEvent";
       payload: NewEventType;
+    }
+  | {
+      type: "deleteEvent";
+      payload: NewEventType;
     };
 
 export type ContextType = {
@@ -74,4 +79,5 @@ export const REDUCER_ACTIONS: ActionsType = {
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal",
   EDIT_EVENT: "editEvent",
   ADD_NEW_EVENT: "addNewEvent",
+  DELETE_EVENT: "deleteEvent",
 };
