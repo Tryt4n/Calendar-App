@@ -11,18 +11,18 @@ import isValid from "date-fns/isValid";
 import parse from "date-fns/parse";
 import addMinutes from "date-fns/addMinutes";
 
-type NewEventModalPropsType = {
-  selectedDate: Date;
-};
+export default function NewEventModal() {
+  const { state, dispatch, selectedDate, editedEvent, setEditedEvent } = useCalendar();
 
-export default function NewEventModal({ selectedDate }: NewEventModalPropsType) {
-  const { state, dispatch } = useCalendar();
-
-  const isValidDate = selectedDate instanceof Date && isValid(selectedDate);
-  // const formattedDate = isValidDate ? format(selectedDate, "d/L/yy", { locale: pl }) : "";
-  const formattedDate = isValidDate ? format(selectedDate, "d/L/yy", { locale: pl }) : "";
+  const isValidDate = editedEvent
+    ? editedEvent.eventDate && isValid(editedEvent.eventDate)
+    : selectedDate && isValid(selectedDate);
+  const formattedDate = isValidDate
+    ? format(editedEvent ? editedEvent.eventDate : selectedDate, "d/L/yy", { locale: pl })
+    : "";
 
   const newEventInitState: NewEventType = {
+    id: crypto.randomUUID(),
     eventDate: selectedDate,
     eventName: "",
     allDayStatus: false,
@@ -39,6 +39,8 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
   });
 
   function closeNewTaskModal() {
+    if (editedEvent) setEditedEvent(undefined);
+    setNewEvent(newEventInitState);
     dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
   }
 
@@ -57,51 +59,98 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
     const inputName = e.target.value;
     const sanitizedInputName = inputName.trimStart(); //? Delete space at the beginning of the input name
 
-    setNewEvent((prevState) => ({
-      ...prevState,
-      eventName: sanitizedInputName,
-      eventDate: selectedDate,
-    }));
-  }
-
-  function handleAllDayEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.checked) {
-      //? If the checkbox is checked, keep the previous startTime and endTime values
-      setPreviousTimeValues({
-        startTime: newEvent.startTime,
-        endTime: newEvent.endTime,
-      });
-
-      //? Reset startTime and endTime
-      setNewEvent((prevState) => ({
-        ...prevState,
-        allDayStatus: true,
-        startTime: undefined,
-        endTime: undefined,
+    if (editedEvent) {
+      setEditedEvent((prevState) => ({
+        ...(prevState as NewEventType),
+        eventName: sanitizedInputName,
       }));
     } else {
-      //? If the checkbox is unchecked, restore the previous startTime and endTime values
       setNewEvent((prevState) => ({
         ...prevState,
-        allDayStatus: false,
-        startTime: previousTimeValues.startTime,
-        endTime: previousTimeValues.endTime,
+        eventName: sanitizedInputName,
+        eventDate: selectedDate,
       }));
     }
   }
 
+  function handleAllDayEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
+    if (editedEvent) {
+      if (e.target.checked) {
+        //? If the checkbox is checked, keep the previous startTime and endTime values
+        setPreviousTimeValues({
+          startTime: editedEvent.startTime,
+          endTime: editedEvent.endTime,
+        });
+
+        //? Reset startTime and endTime
+        setEditedEvent((prevState) => ({
+          ...(prevState as NewEventType),
+          allDayStatus: true,
+          startTime: undefined,
+          endTime: undefined,
+        }));
+      } else {
+        //? If the checkbox is unchecked, restore the previous startTime and endTime values
+        setEditedEvent((prevState) => ({
+          ...(prevState as NewEventType),
+          allDayStatus: false,
+          startTime: previousTimeValues.startTime,
+          endTime: previousTimeValues.endTime,
+        }));
+      }
+    } else {
+      if (e.target.checked) {
+        //? If the checkbox is checked, keep the previous startTime and endTime values
+        setPreviousTimeValues({
+          startTime: newEvent.startTime,
+          endTime: newEvent.endTime,
+        });
+
+        //? Reset startTime and endTime
+        setNewEvent((prevState) => ({
+          ...prevState,
+          allDayStatus: true,
+          startTime: undefined,
+          endTime: undefined,
+        }));
+      } else {
+        //? If the checkbox is unchecked, restore the previous startTime and endTime values
+        setNewEvent((prevState) => ({
+          ...prevState,
+          allDayStatus: false,
+          startTime: previousTimeValues.startTime,
+          endTime: previousTimeValues.endTime,
+        }));
+      }
+    }
+  }
+
   function handleEventTimeChange(e: ChangeEvent<HTMLInputElement>, fieldName: string) {
-    setNewEvent((prevState) => ({
-      ...prevState,
-      [fieldName]: e.target.value,
-    }));
+    if (editedEvent) {
+      setEditedEvent((prevState) => ({
+        ...(prevState as NewEventType),
+        [fieldName]: e.target.value,
+      }));
+    } else {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        [fieldName]: e.target.value,
+      }));
+    }
   }
 
   function handleEventColorChange(e: ChangeEvent<HTMLInputElement>) {
-    setNewEvent((prevState) => ({
-      ...prevState,
-      eventColor: e.target.value,
-    }));
+    if (editedEvent) {
+      setEditedEvent((prevState) => ({
+        ...(prevState as NewEventType),
+        eventColor: e.target.value,
+      }));
+    } else {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        eventColor: e.target.value,
+      }));
+    }
   }
 
   function addNewEvent() {
@@ -122,6 +171,28 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
       dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
       //? Reset `newEvent`
       setNewEvent(newEventInitState);
+    }
+  }
+
+  function editEvent() {
+    if (!editedEvent) return;
+
+    const isDuplicateEvent = state.events.some(
+      (event) =>
+        event.eventName === editedEvent.eventName &&
+        event.eventDate.toISOString() === editedEvent.eventDate.toISOString()
+    );
+
+    if (isDuplicateEvent) {
+      alert("Tego dnia istnieje już wydarzenie o takiej samej nazwie!");
+    } else {
+      dispatch({
+        type: REDUCER_ACTIONS.EDIT_EVENT,
+        payload: editedEvent,
+      });
+      dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
+      //? Reset `editedEvent`
+      setEditedEvent(undefined);
     }
   }
 
@@ -154,7 +225,7 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
               autoComplete="off"
               onSubmit={(e) => {
                 e.preventDefault();
-                addNewEvent();
+                editedEvent ? editEvent() : addNewEvent();
               }}
             >
               <div className="form-group">
@@ -165,7 +236,7 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                   id="name"
                   required
                   minLength={1}
-                  value={newEvent.eventName}
+                  value={editedEvent ? editedEvent.eventName : newEvent.eventName}
                   onChange={handleEventNameChange}
                 />
               </div>
@@ -174,7 +245,7 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                   type="checkbox"
                   name="all-day"
                   id="all-day"
-                  checked={newEvent.allDayStatus}
+                  checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
                   onChange={handleAllDayEventCheckboxChange}
                 />
                 <label htmlFor="all-day">All Day?</label>
@@ -186,8 +257,9 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                     type="time"
                     name="start-time"
                     id="start-time"
-                    disabled={newEvent.allDayStatus}
-                    required={!newEvent.allDayStatus}
+                    value={editedEvent ? editedEvent.startTime : undefined}
+                    disabled={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                    required={editedEvent ? !editedEvent.allDayStatus : !newEvent.allDayStatus}
                     onChange={(e) => handleEventTimeChange(e, "startTime")}
                   />
                 </div>
@@ -197,8 +269,9 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                     type="time"
                     name="end-time"
                     id="end-time"
-                    disabled={newEvent.allDayStatus}
-                    required={!newEvent.allDayStatus}
+                    value={editedEvent ? editedEvent.endTime : undefined}
+                    disabled={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                    required={editedEvent ? !editedEvent.allDayStatus : !newEvent.allDayStatus}
                     min={formatNewEndTimeDate(newEvent.startTime as string)}
                     onChange={(e) => handleEventTimeChange(e, "endTime")}
                   />
@@ -213,7 +286,11 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                     value="blue"
                     id="blue"
                     className="color-radio"
-                    checked={newEvent.eventColor === "blue"}
+                    checked={
+                      editedEvent
+                        ? editedEvent.eventColor === "blue"
+                        : newEvent.eventColor === "blue"
+                    }
                     onChange={handleEventColorChange}
                   />
                   <label htmlFor="blue">
@@ -225,7 +302,9 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                     value="red"
                     id="red"
                     className="color-radio"
-                    checked={newEvent.eventColor === "red"}
+                    checked={
+                      editedEvent ? editedEvent.eventColor === "red" : newEvent.eventColor === "red"
+                    }
                     onChange={handleEventColorChange}
                   />
                   <label htmlFor="red">
@@ -237,7 +316,11 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                     value="green"
                     id="green"
                     className="color-radio"
-                    checked={newEvent.eventColor === "green"}
+                    checked={
+                      editedEvent
+                        ? editedEvent.eventColor === "green"
+                        : newEvent.eventColor === "green"
+                    }
                     onChange={handleEventColorChange}
                   />
                   <label htmlFor="green">
@@ -250,7 +333,7 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
                   className="btn btn-success"
                   type="submit"
                 >
-                  Add
+                  {editedEvent ? "Edit" : "Add"}
                 </button>
                 <button
                   className="btn btn-delete"

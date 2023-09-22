@@ -222,10 +222,17 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   background: none;
-  width: 100%;
+  width: auto;
   border: none;
   font-size: 1rem;
   padding: 0;
+}
+.event-name {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .all-day-event {
@@ -278,6 +285,7 @@ body {
   gap: 0.5rem;
   flex-grow: 1;
   overflow: hidden;
+  max-width: 90%;
 }
 
 .events-view-more-btn {

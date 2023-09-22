@@ -2,6 +2,7 @@ import React from "react";
 import { useCalendar } from "../context/useCalendar";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
+import { NewEventType } from "../types/NewEventType";
 // date-fns
 import format from "date-fns/format";
 import isBefore from "date-fns/isBefore";
@@ -9,15 +10,17 @@ import isSameDay from "date-fns/isSameDay";
 import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
 
-type CalendarGridType = {
-  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
-};
-export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
-  const { state, dispatch } = useCalendar();
+export default function CalendarGrid() {
+  const { state, dispatch, setSelectedDate, setEditedEvent } = useCalendar();
 
   function openNewEventModal(date: Date) {
     dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
     setSelectedDate(date);
+  }
+
+  function openEditEventModal(event: NewEventType) {
+    dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
+    setEditedEvent(event);
   }
 
   return (
@@ -52,12 +55,7 @@ export default function CalendarGrid({ setSelectedDate }: CalendarGridType) {
                           className={`event ${task.eventColor}${
                             task.allDayStatus ? " all-day-event" : ""
                           }`}
-                          onClick={() =>
-                            dispatch({
-                              type: REDUCER_ACTIONS.OPEN_EXISTING_TASK_MODAL,
-                              payload: task,
-                            })
-                          }
+                          onClick={() => openEditEventModal(task)}
                         >
                           {!task.allDayStatus && (
                             <>

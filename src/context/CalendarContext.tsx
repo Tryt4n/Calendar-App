@@ -1,5 +1,5 @@
 // React
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 //types
 import {
   ContextType,
@@ -8,6 +8,7 @@ import {
   ReducerActionsType,
   REDUCER_ACTIONS,
 } from "../types/ContextTypes";
+import { NewEventType } from "../types/NewEventType";
 // date-fns
 import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
@@ -15,7 +16,6 @@ import startOfMonth from "date-fns/startOfMonth";
 import startOfWeek from "date-fns/startOfWeek";
 import endOfWeek from "date-fns/endOfWeek";
 import endOfMonth from "date-fns/endOfMonth";
-import { NewEventType } from "../types/NewEventType";
 
 function handleFormat(date: Date) {
   return eachDayOfInterval({
@@ -27,6 +27,9 @@ function handleFormat(date: Date) {
 function reducer(state: ReducerStateType, action: ReducerActionsType) {
   const { type } = action;
   const { currentMonth, events } = state;
+
+  // let updatedEvent: NewEventType;
+  let updatedEvents: NewEventType[];
 
   function handleDateChange(date: Date, value = 0) {
     const newDate = addMonths(date, value);
@@ -67,12 +70,15 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL:
       return handleNewTaskModalOpen(false);
 
-    case REDUCER_ACTIONS.OPEN_EXISTING_TASK_MODAL:
-      // const date = action.payload;
-      // console.log(date);
+    case REDUCER_ACTIONS.EDIT_EVENT:
+      // updatedEvent = action.payload;
+      updatedEvents = events.map((event) =>
+        event.id === action.payload.id ? action.payload : event
+      );
       return {
         ...state,
-        isModalOpen: true,
+        // isModalOpen: false,
+        events: updatedEvents,
       };
 
     case REDUCER_ACTIONS.ADD_NEW_EVENT: {
@@ -113,9 +119,18 @@ const initState: ReducerStateType = {
 export function CalendarProvider({ children }: ChildrenType) {
   const [state, dispatch] = useReducer(reducer, initState);
 
+  //!
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editedEvent, setEditedEvent] = useState<NewEventType>();
+  //!
+
   const contextValues = {
     state: state,
     dispatch: dispatch,
+    selectedDate: selectedDate,
+    setSelectedDate: setSelectedDate,
+    editedEvent: editedEvent,
+    setEditedEvent: setEditedEvent,
   };
 
   useEffect(() => {

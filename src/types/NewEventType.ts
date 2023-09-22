@@ -1,4 +1,5 @@
 export type NewEventType = {
+  id: string;
   eventDate: Date;
   eventName: string;
   allDayStatus: boolean;

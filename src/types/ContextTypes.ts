@@ -10,7 +10,7 @@ type ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth";
   OPEN_NEW_TASK_MODAL: "openNewTaskModal";
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal";
-  OPEN_EXISTING_TASK_MODAL: "openExistingTaskModal";
+  EDIT_EVENT: "editEvent";
   ADD_NEW_EVENT: "addNewEvent";
 };
 
@@ -44,7 +44,7 @@ export type ReducerActionsType =
       type: "closeNewTaskModal";
     }
   | {
-      type: "openExistingTaskModal";
+      type: "editEvent";
       payload: NewEventType;
     }
   | {
@@ -55,6 +55,10 @@ export type ReducerActionsType =
 export type ContextType = {
   state: ReducerStateType;
   dispatch: React.Dispatch<ReducerActionsType>;
+  selectedDate: Date;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
+  editedEvent: undefined | NewEventType;
+  setEditedEvent: React.Dispatch<React.SetStateAction<undefined | NewEventType>>;
 };
 
 export type ChildrenType = { children?: ReactElement | ReactElement[] };
@@ -68,6 +72,6 @@ export const REDUCER_ACTIONS: ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth",
   OPEN_NEW_TASK_MODAL: "openNewTaskModal",
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal",
-  OPEN_EXISTING_TASK_MODAL: "openExistingTaskModal",
+  EDIT_EVENT: "editEvent",
   ADD_NEW_EVENT: "addNewEvent",
 };
