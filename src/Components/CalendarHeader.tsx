@@ -1,7 +1,7 @@
 //Context
 import { useCalendar } from "../context/useCalendar";
+// Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
-
 // date-fns
 import format from "date-fns/format";
 import pl from "date-fns/locale/pl";

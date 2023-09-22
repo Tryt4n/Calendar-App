@@ -1,4 +1,6 @@
+// React
 import { ChangeEvent, useEffect, useState } from "react";
+// Context
 import { useCalendar } from "../context/useCalendar";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
@@ -26,7 +28,6 @@ export default function NewEventModal() {
     eventDate: selectedDate,
     eventName: "",
     allDayStatus: false,
-    everyYear: false,
     startTime: undefined,
     endTime: undefined,
     eventColor: "blue",
@@ -135,20 +136,6 @@ export default function NewEventModal() {
           endTime: previousTimeValues.endTime,
         }));
       }
-    }
-  }
-
-  function handleEveryYearEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.checked) {
-      setNewEvent((prevState) => ({
-        ...prevState,
-        everyYear: true,
-      }));
-    } else {
-      setNewEvent((prevState) => ({
-        ...prevState,
-        everyYear: false,
-      }));
     }
   }
 
@@ -283,28 +270,15 @@ export default function NewEventModal() {
                   onChange={handleEventNameChange}
                 />
               </div>
-              <div className="checkbox-wrapper">
-                <div className="form-group checkbox">
-                  <input
-                    type="checkbox"
-                    name="all-day"
-                    id="all-day"
-                    checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
-                    onChange={handleAllDayEventCheckboxChange}
-                  />
-                  <label htmlFor="all-day">All Day?</label>
-                </div>
-                <div className="form-group checkbox">
-                  <input
-                    type="checkbox"
-                    name="every-year"
-                    id="every-year"
-                    checked={editedEvent ? editedEvent.everyYear : newEvent.everyYear}
-                    disabled={editedEvent !== undefined}
-                    onChange={handleEveryYearEventCheckboxChange}
-                  />
-                  <label htmlFor="every-year">Every Year?</label>
-                </div>
+              <div className="form-group checkbox">
+                <input
+                  type="checkbox"
+                  name="all-day"
+                  id="all-day"
+                  checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                  onChange={handleAllDayEventCheckboxChange}
+                />
+                <label htmlFor="all-day">All Day?</label>
               </div>
               <div className="row">
                 <div className="form-group">

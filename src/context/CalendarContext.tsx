@@ -1,6 +1,6 @@
 // React
 import { createContext, useEffect, useReducer, useState } from "react";
-//types
+// Types
 import {
   ContextType,
   ChildrenType,

@@ -373,16 +373,6 @@ body {
   margin-bottom: 1rem;
 }
 
-.checkbox-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  & > * {
-    margin-bottom: 0;
-  }
-}
-
 .form-group.checkbox {
   flex-direction: row;
   align-items: center;
@@ -473,14 +463,12 @@ body {
   background-color: var(--green-background);
 }
 
-input,
+input[type="time"],
 input + label {
   cursor: pointer;
 }
 
-input:disabled,
-input:disabled + label,
-input[type="checkbox"]:disabled,
-input[type="checkbox"]:disabled + label {
+input[type="time"]:disabled,
+input[type="time"]:disabled + label {
   cursor: not-allowed;
 }
