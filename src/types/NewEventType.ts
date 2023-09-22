@@ -1,5 +1,5 @@
 export type NewEventType = {
-  eventDate: Date | object;
+  eventDate: Date;
   eventName: string;
   allDayStatus: boolean;
   startTime?: string;

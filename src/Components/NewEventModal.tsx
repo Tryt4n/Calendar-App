@@ -19,6 +19,7 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
   const { state, dispatch } = useCalendar();
 
   const isValidDate = selectedDate instanceof Date && isValid(selectedDate);
+  // const formattedDate = isValidDate ? format(selectedDate, "d/L/yy", { locale: pl }) : "";
   const formattedDate = isValidDate ? format(selectedDate, "d/L/yy", { locale: pl }) : "";
 
   const newEventInitState: NewEventType = {
@@ -104,11 +105,15 @@ export default function NewEventModal({ selectedDate }: NewEventModalPropsType) 
   }
 
   function addNewEvent() {
-    //? Checking to see if a new event with the same name already exists in the `state`
-    const isDuplicateEvent = state.events.some((event) => event.eventName === newEvent.eventName);
+    //? Checking to see if a event with the same name already exists in the same day
+    const isDuplicateEvent = state.events.some(
+      (event) =>
+        event.eventName === newEvent.eventName &&
+        event.eventDate.toISOString() === newEvent.eventDate.toISOString()
+    );
 
     if (isDuplicateEvent) {
-      alert("Istnieje już wydarzenie o takiej samej nazwie!");
+      alert("Tego dnia istnieje już wydarzenie o takiej samej nazwie!");
     } else {
       dispatch({
         type: REDUCER_ACTIONS.ADD_NEW_EVENT,

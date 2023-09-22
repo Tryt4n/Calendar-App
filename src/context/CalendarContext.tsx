@@ -15,6 +15,7 @@ import startOfMonth from "date-fns/startOfMonth";
 import startOfWeek from "date-fns/startOfWeek";
 import endOfWeek from "date-fns/endOfWeek";
 import endOfMonth from "date-fns/endOfMonth";
+import { NewEventType } from "../types/NewEventType";
 
 function handleFormat(date: Date) {
   return eachDayOfInterval({
@@ -92,11 +93,21 @@ const CalendarContext = createContext<ContextType | null>(null);
 const currentDate = new Date();
 const visibleDates = handleFormat(currentDate);
 
+//? Get events from localStorage and parse for each event `eventDate`from string to Date
+const storedEventsString = localStorage.getItem("events");
+const storedEvents = storedEventsString ? JSON.parse(storedEventsString) : [];
+
+//? Convert all eventDate to Date objects
+const eventsWithDateAsDate = storedEvents.map((event: NewEventType) => ({
+  ...event,
+  eventDate: new Date(event.eventDate),
+}));
+
 const initState: ReducerStateType = {
   currentMonth: currentDate,
   visibleDates: visibleDates,
   isModalOpen: false,
-  events: [],
+  events: eventsWithDateAsDate,
 };
 
 export function CalendarProvider({ children }: ChildrenType) {
@@ -107,7 +118,17 @@ export function CalendarProvider({ children }: ChildrenType) {
     dispatch: dispatch,
   };
 
-  useEffect(() => console.log(state), [state]);
+  useEffect(() => {
+    if (!localStorage.getItem("events")) {
+      localStorage.setItem("events", "[]");
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("events", JSON.stringify(state.events));
+  }, [state.events]);
+
+  // useEffect(() => console.log(state), [state]);
 
   return <CalendarContext.Provider value={contextValues}>{children}</CalendarContext.Provider>;
 }
