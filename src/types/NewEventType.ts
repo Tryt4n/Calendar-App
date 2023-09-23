@@ -6,4 +6,5 @@ export type NewEventType = {
   startTime?: string;
   endTime?: string;
   eventColor: string;
+  everyYear?: boolean;
 };

@@ -38,13 +38,24 @@ export default function CalendarGrid() {
         const isCurrentMonth = isSameMonth(date, state.currentMonth);
         const isToday = isSameDay(date, new Date());
         const formattedDate = format(date, "d");
-        const eventsForDate = state.events.filter((event) => isSameDay(event.eventDate, date));
-        const sortedEvents = [...eventsForDate].sort(sortEvents);
+        const sortedEvents = state.events
+          .filter((event) => {
+            const eventDate = new Date(event.eventDate);
+            return (
+              isSameDay(eventDate, date) ||
+              //? Creates events every year if they have `event.everyYear`
+              (event.everyYear &&
+                eventDate.getMonth() === date.getMonth() &&
+                eventDate.getDate() === date.getDate() &&
+                eventDate.getFullYear() <= date.getFullYear()) //? Creates events only after `eventDate` year
+            );
+          })
+          .sort(sortEvents);
 
         return (
           <div
             className={`day${!isCurrentMonth ? " non-month-day" : ""}${
-              isBefore(date, new Date()) && !isSameDay(date, new Date()) ? " old-month-day" : ""
+              isBefore(date, new Date()) && !isToday ? " old-month-day" : ""
             }`}
             key={date.toISOString()}
           >

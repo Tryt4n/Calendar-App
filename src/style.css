@@ -472,3 +472,26 @@ input[type="time"]:disabled,
 input[type="time"]:disabled + label {
   cursor: not-allowed;
 }
+
+.checkbox-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  & > * {
+    margin-bottom: 0;
+  }
+}
+
+.every-year {
+  position: relative;
+  padding-right: 1.5em;
+}
+.every-year::after {
+  position: absolute;
+  content: "*";
+  top: 0;
+  right: 5%;
+  font-size: 2rem;
+  color: orchid;
+}

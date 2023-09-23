@@ -1,3 +1,4 @@
+// Context
 import { CalendarProvider } from "./context/CalendarContext";
 // Components
 import CalendarHeader from "./Components/CalendarHeader";

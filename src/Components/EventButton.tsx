@@ -18,7 +18,9 @@ export default function EventButton({ event }: EventButtonType) {
 
   return (
     <button
-      className={`event ${event.eventColor}${event.allDayStatus ? " all-day-event" : ""}`}
+      className={`event ${event.eventColor}${event.allDayStatus ? " all-day-event" : ""}${
+        event.everyYear ? " every-year" : ""
+      }`}
       onClick={() => openEditEventModal(event)}
     >
       {!event.allDayStatus && (

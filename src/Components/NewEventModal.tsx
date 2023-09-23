@@ -31,6 +31,7 @@ export default function NewEventModal() {
     startTime: undefined,
     endTime: undefined,
     eventColor: "blue",
+    everyYear: false,
   };
 
   const [newEvent, setNewEvent] = useState(newEventInitState);
@@ -136,6 +137,20 @@ export default function NewEventModal() {
           endTime: previousTimeValues.endTime,
         }));
       }
+    }
+  }
+
+  function handleEveryYearEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.checked) {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        everyYear: true,
+      }));
+    } else {
+      setNewEvent((prevState) => ({
+        ...prevState,
+        everyYear: false,
+      }));
     }
   }
 
@@ -270,15 +285,30 @@ export default function NewEventModal() {
                   onChange={handleEventNameChange}
                 />
               </div>
-              <div className="form-group checkbox">
-                <input
-                  type="checkbox"
-                  name="all-day"
-                  id="all-day"
-                  checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
-                  onChange={handleAllDayEventCheckboxChange}
-                />
-                <label htmlFor="all-day">All Day?</label>
+              <div className="checkbox-wrapper">
+                <div className="form-group checkbox">
+                  <input
+                    type="checkbox"
+                    name="all-day"
+                    id="all-day"
+                    checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                    onChange={handleAllDayEventCheckboxChange}
+                  />
+                  <label htmlFor="all-day">All Day?</label>
+                </div>
+                {((newEvent && !editedEvent) || editedEvent?.everyYear) && (
+                  <div className="form-group checkbox">
+                    <input
+                      type="checkbox"
+                      name="every-year"
+                      id="every-year"
+                      checked={editedEvent?.everyYear}
+                      disabled={editedEvent?.everyYear}
+                      onChange={handleEveryYearEventCheckboxChange}
+                    />
+                    <label htmlFor="every-year">Every Year?</label>
+                  </div>
+                )}
               </div>
               <div className="row">
                 <div className="form-group">
