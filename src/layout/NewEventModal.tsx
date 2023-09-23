@@ -2,6 +2,9 @@
 import { ChangeEvent, useEffect, useState } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
+// Components
+import TimeInput from "../Components/TimeInput";
+import ColorRadioInput from "../Components/ColorRadioInput";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 import { NewEventType } from "../types/NewEventType";
@@ -10,8 +13,6 @@ import { PreviousTimeValuesType } from "../types/NewEventModalTypes";
 import format from "date-fns/format";
 import pl from "date-fns/locale/pl";
 import isValid from "date-fns/isValid";
-import parse from "date-fns/parse";
-import addMinutes from "date-fns/addMinutes";
 
 export default function NewEventModal() {
   const { state, dispatch, selectedDate, editedEvent, setEditedEvent } = useCalendar();
@@ -241,31 +242,34 @@ export default function NewEventModal() {
     setEditedEvent(undefined);
   }
 
-  //? Formats newEvent.endTime to one minute greater than newEvent.startTime
-  function formatNewEndTimeDate(stringDate: string) {
-    if (isValid(parse(stringDate, "HH:mm", new Date()))) {
-      const newEndTime = addMinutes(parse(stringDate, "HH:mm", new Date()), 1);
-      const formattedNewEndTime = format(newEndTime, "HH:mm", { locale: pl });
-      return formattedNewEndTime;
-    }
-  }
-
   return (
     <>
       {state.isModalOpen && (
-        <div className="modal">
-          <div className="overlay"></div>
+        <article className="modal">
+          <div
+            className="overlay"
+            role="presentation"
+          ></div>
           <div className="modal-body">
-            <div className="modal-title">
-              <div>Add Event</div>
-              <small>{formattedDate}</small>
+            <header className="modal-title">
+              <h2>{editedEvent ? "Edytuj Wydarzenie" : "Dodaj Wydarzenie"}</h2>
+              <time
+                dateTime={
+                  editedEvent
+                    ? editedEvent.eventDate.toLocaleDateString()
+                    : selectedDate.toLocaleDateString()
+                }
+              >
+                {formattedDate}
+              </time>
               <button
                 className="close-btn"
+                aria-label="Zamknij okno"
                 onClick={closeNewTaskModal}
               >
                 &times;
               </button>
-            </div>
+            </header>
             <form
               autoComplete="off"
               onSubmit={(e) => {
@@ -273,8 +277,9 @@ export default function NewEventModal() {
                 editedEvent ? editEvent() : addNewEvent();
               }}
             >
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
+              <fieldset className="form-group">
+                <legend className="visually-hidden">Nazwa wydarzenia</legend>
+                <label htmlFor="name">Nazwa</label>
                 <input
                   type="text"
                   name="name"
@@ -284,8 +289,10 @@ export default function NewEventModal() {
                   value={editedEvent ? editedEvent.eventName : newEvent.eventName}
                   onChange={handleEventNameChange}
                 />
-              </div>
-              <div className="checkbox-wrapper">
+              </fieldset>
+
+              <fieldset className="checkbox-wrapper">
+                <legend className="visually-hidden">Ustawienia Wydarzenia</legend>
                 <div className="form-group checkbox">
                   <input
                     type="checkbox"
@@ -294,7 +301,7 @@ export default function NewEventModal() {
                     checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
                     onChange={handleAllDayEventCheckboxChange}
                   />
-                  <label htmlFor="all-day">All Day?</label>
+                  <label htmlFor="all-day">Cały dzień?</label>
                 </div>
                 {((newEvent && !editedEvent) || editedEvent?.everyYear) && (
                   <div className="form-group checkbox">
@@ -306,110 +313,66 @@ export default function NewEventModal() {
                       disabled={editedEvent?.everyYear}
                       onChange={handleEveryYearEventCheckboxChange}
                     />
-                    <label htmlFor="every-year">Every Year?</label>
+                    <label htmlFor="every-year">Każdego roku?</label>
                   </div>
                 )}
-              </div>
-              <div className="row">
-                <div className="form-group">
-                  <label htmlFor="start-time">Start Time</label>
-                  <input
-                    type="time"
-                    name="start-time"
-                    id="start-time"
-                    value={editedEvent ? editedEvent.startTime : undefined}
-                    disabled={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
-                    required={editedEvent ? !editedEvent.allDayStatus : !newEvent.allDayStatus}
-                    onChange={(e) => handleEventTimeChange(e, "startTime")}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="end-time">End Time</label>
-                  <input
-                    type="time"
-                    name="end-time"
-                    id="end-time"
-                    value={editedEvent ? editedEvent.endTime : undefined}
-                    disabled={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
-                    required={editedEvent ? !editedEvent.allDayStatus : !newEvent.allDayStatus}
-                    min={
-                      typeof newEvent.startTime === "string"
-                        ? formatNewEndTimeDate(newEvent.startTime)
-                        : undefined
-                    }
-                    onChange={(e) => handleEventTimeChange(e, "endTime")}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Color</label>
+              </fieldset>
+
+              <fieldset className="row">
+                <legend className="visually-hidden">Wybór czasu</legend>
+                <TimeInput
+                  timeType="start"
+                  comparedEvent={newEvent}
+                  onChangeFunction={handleEventTimeChange}
+                />
+                <TimeInput
+                  timeType="end"
+                  comparedEvent={newEvent}
+                  onChangeFunction={handleEventTimeChange}
+                />
+              </fieldset>
+
+              <fieldset className="form-group">
+                <legend>Kolor</legend>
                 <div className="row left">
-                  <input
-                    type="radio"
-                    name="color"
-                    value="blue"
-                    id="blue"
-                    className="color-radio"
-                    checked={
-                      editedEvent
-                        ? editedEvent.eventColor === "blue"
-                        : newEvent.eventColor === "blue"
-                    }
-                    onChange={handleEventColorChange}
+                  <ColorRadioInput
+                    color="blue"
+                    comparedValue={newEvent.eventColor}
+                    onChangeFunction={handleEventColorChange}
                   />
-                  <label htmlFor="blue">
-                    <span className="sr-only">Blue</span>
-                  </label>
-                  <input
-                    type="radio"
-                    name="color"
-                    value="red"
-                    id="red"
-                    className="color-radio"
-                    checked={
-                      editedEvent ? editedEvent.eventColor === "red" : newEvent.eventColor === "red"
-                    }
-                    onChange={handleEventColorChange}
+                  <ColorRadioInput
+                    color="red"
+                    comparedValue={newEvent.eventColor}
+                    onChangeFunction={handleEventColorChange}
                   />
-                  <label htmlFor="red">
-                    <span className="sr-only">Red</span>
-                  </label>
-                  <input
-                    type="radio"
-                    name="color"
-                    value="green"
-                    id="green"
-                    className="color-radio"
-                    checked={
-                      editedEvent
-                        ? editedEvent.eventColor === "green"
-                        : newEvent.eventColor === "green"
-                    }
-                    onChange={handleEventColorChange}
+                  <ColorRadioInput
+                    color="green"
+                    comparedValue={newEvent.eventColor}
+                    onChangeFunction={handleEventColorChange}
                   />
-                  <label htmlFor="green">
-                    <span className="sr-only">Green</span>
-                  </label>
                 </div>
-              </div>
+              </fieldset>
+
               <div className="row">
                 <button
                   className="btn btn-success"
                   type="submit"
                 >
-                  {editedEvent ? "Edit" : "Add"}
+                  {editedEvent ? "Edytuj" : "Dodaj"}
                 </button>
-                <button
-                  className="btn btn-delete"
-                  type="button"
-                  onClick={deleteEvent}
-                >
-                  Delete
-                </button>
+                {editedEvent && (
+                  <button
+                    className="btn btn-delete"
+                    type="button"
+                    onClick={deleteEvent}
+                  >
+                    Usuń
+                  </button>
+                )}
               </div>
             </form>
           </div>
-        </div>
+        </article>
       )}
     </>
   );

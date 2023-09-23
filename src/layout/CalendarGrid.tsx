@@ -1,28 +1,18 @@
+// React
+import { useCallback } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 import { NewEventType } from "../types/NewEventType";
 // Components
-import EventButton from "./EventButton";
+import EventButton from "../Components/EventButton";
 // date-fns
 import format from "date-fns/format";
 import isBefore from "date-fns/isBefore";
 import isSameDay from "date-fns/isSameDay";
 import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
-
-function sortEvents(a: NewEventType, b: NewEventType): number {
-  if (a.allDayStatus && !b.allDayStatus) {
-    return -1; //? The first element has allDayStatus true, so it should be first.
-  } else if (!a.allDayStatus && b.allDayStatus) {
-    return 1; //? The second element has allDayStatus true, so it should be the second one.
-  } else if (!a.allDayStatus && !b.allDayStatus && a.startTime && b.startTime) {
-    return a.startTime.localeCompare(b.startTime); //? Both items have allDayStatus false, so sort by startTime.
-  } else {
-    return 0; //? Both elements have allDayStatus true, so keep their current order.
-  }
-}
 
 export default function CalendarGrid() {
   const { state, dispatch, setSelectedDate } = useCalendar();
@@ -32,11 +22,39 @@ export default function CalendarGrid() {
     setSelectedDate(date);
   }
 
+  const sortEventsByAllDayStatusAndStartTime = useCallback(
+    (a: NewEventType, b: NewEventType): number => {
+      //? Sort by `everyYear` first
+      if (a.everyYear && !b.everyYear) {
+        return -1; //? The first element has `everyYear` true, so it should be first.
+      } else if (!a.everyYear && b.everyYear) {
+        return 1; //? The second element has `everyYear` true, so it should be the second one.
+      }
+
+      //? If both have `everyYear` true or false, then sort by `allDayStatus`
+      if (a.allDayStatus && !b.allDayStatus) {
+        return -1; //? The first element has `allDayStatus` true, so it should be first.
+      } else if (!a.allDayStatus && b.allDayStatus) {
+        return 1; //? The second element has `allDayStatus` true, so it should be the second one.
+      }
+
+      //? If both have `everyYear` true or false and `allDayStatus` true or false, then sort by startTime
+      if (a.startTime && b.startTime) {
+        return a.startTime.localeCompare(b.startTime);
+      }
+
+      //? If all else fails, maintain the current order
+      return 0;
+    },
+    []
+  );
+
   return (
     <div className="days">
       {state.visibleDates.map((date, index) => {
+        const currentDate = new Date();
         const isCurrentMonth = isSameMonth(date, state.currentMonth);
-        const isToday = isSameDay(date, new Date());
+        const isToday = isSameDay(date, currentDate);
         const formattedDate = format(date, "d");
         const sortedEvents = state.events
           .filter((event) => {
@@ -50,12 +68,12 @@ export default function CalendarGrid() {
                 eventDate.getFullYear() <= date.getFullYear()) //? Creates events only after `eventDate` year
             );
           })
-          .sort(sortEvents);
+          .sort(sortEventsByAllDayStatusAndStartTime);
 
         return (
           <div
             className={`day${!isCurrentMonth ? " non-month-day" : ""}${
-              isBefore(date, new Date()) && !isToday ? " old-month-day" : ""
+              isBefore(date, currentDate) && !isToday ? " old-month-day" : ""
             }`}
             key={date.toISOString()}
           >
@@ -64,12 +82,16 @@ export default function CalendarGrid() {
               <div className={`day-number${isToday ? " today" : ""}`}>{formattedDate}</div>
               <button
                 className="add-event-btn"
+                aria-label="Naciśnij aby dodać nowe wydarzenie."
                 onClick={() => openNewEventModal(date)}
               >
                 +
               </button>
               {sortedEvents.length > 0 && (
-                <div className="events">
+                <div
+                  className="events"
+                  aria-describedby="sorting-description"
+                >
                   {sortedEvents.map((event) => (
                     <EventButton
                       key={event.eventName}
@@ -82,6 +104,24 @@ export default function CalendarGrid() {
           </div>
         );
       })}
+      <ol
+        id="sorting-description"
+        className="visually-hidden"
+      >
+        <li>
+          1. W pierwszej kolejności wyświetlają się wydarzenia całoroczne całodniowe w kolejności
+          ich dodania.
+        </li>
+        <li>
+          2. Następnie wyświetlają się wydarzenia całoroczne z określoną godziną rozpoczęcia - od
+          najwcześniejszej godziny rozpoczęcia.
+        </li>
+        <li>3. Potem wyświetlają się wydarzenia całodniowe w kolejności dodania.</li>
+        <li>
+          4. Na końcu wydarzenia wyświetlają się wydarzenia z określoną godziną rozpoczęcia - od
+          najwcześniejszej godziny rozpoczęcia.
+        </li>
+      </ol>
     </div>
   );
 }

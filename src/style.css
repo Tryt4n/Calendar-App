@@ -12,6 +12,8 @@
   --border-color: #dadce0;
   --border-size: 1px;
   --day-padding: 0.25rem;
+  --header-padding: 1rem;
+  --navigation-btn-size: 2rem;
 }
 
 body {
@@ -25,14 +27,14 @@ body {
 }
 
 .calendar {
-  height: 100%;
+  height: calc(100% - (2 * var(--navigation-btn-size)) - var(--header-padding));
   display: flex;
   flex-direction: column;
   color: #333;
 }
 
 .header {
-  padding: 1rem;
+  padding: var(--header-padding);
   width: 100%;
   display: flex;
   align-items: center;
@@ -105,9 +107,9 @@ body {
   background: none;
   border: none;
   font-size: 1.5rem;
-  width: 2rem;
+  width: var(--navigation-btn-size);
   padding: 0;
-  height: 2rem;
+  height: var(--navigation-btn-size);
   text-align: center;
   vertical-align: middle;
   border-radius: 100%;
@@ -127,6 +129,7 @@ body {
   font-size: 1.5rem;
   font-weight: bold;
   text-transform: capitalize;
+  margin-block: 0;
 }
 
 .days {
@@ -138,6 +141,8 @@ body {
   background-color: var(--border-color);
   gap: var(--border-size);
   padding: var(--border-size);
+  margin: 1rem;
+  margin-top: 0;
 }
 
 .day {
@@ -363,8 +368,15 @@ body {
   margin-right: 0;
 }
 
-.modal-title > small {
+.modal-title > time {
   color: #555;
+  font-size: smaller;
+}
+
+.modal-title h2 {
+  font: inherit;
+  margin-block: 0;
+  margin-right: 1em;
 }
 
 .form-group {
@@ -392,7 +404,13 @@ body {
   margin-bottom: 0;
 }
 
-.form-group label {
+.form-group:not(.checkbox) label,
+.form-group:not(.checkbox) legend {
+  margin-bottom: 0.25em;
+}
+
+.form-group label,
+.form-group legend {
   font-weight: bold;
   font-size: 0.8rem;
   color: #777;
@@ -418,13 +436,6 @@ body {
 
 .row.left > * {
   flex-grow: 0;
-}
-
-.sr-only {
-  visibility: hidden;
-  height: 0;
-  width: 0;
-  display: block;
 }
 
 .color-radio {
@@ -469,7 +480,9 @@ input + label {
 }
 
 input[type="time"]:disabled,
-input[type="time"]:disabled + label {
+input[type="time"]:disabled + label,
+input[type="checkbox"]:disabled,
+input[type="checkbox"]:disabled + label {
   cursor: not-allowed;
 }
 
@@ -494,4 +507,20 @@ input[type="time"]:disabled + label {
   right: 5%;
   font-size: 2rem;
   color: orchid;
+}
+
+main,
+fieldset,
+legend {
+  all: unset;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px);
+  padding: 0 !important;
+  border: 0 !important;
+  height: 1px !important;
+  width: 1px !important;
+  overflow: hidden;
 }

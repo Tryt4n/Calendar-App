@@ -1,3 +1,5 @@
+// React
+import { useCallback } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 // Types
@@ -11,15 +13,21 @@ type EventButtonType = {
 export default function EventButton({ event }: EventButtonType) {
   const { dispatch, setEditedEvent } = useCalendar();
 
-  function openEditEventModal(event: NewEventType) {
-    dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
-    setEditedEvent(event);
-  }
+  const openEditEventModal = useCallback(
+    (event: NewEventType) => {
+      dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
+      setEditedEvent(event);
+    },
+    [dispatch, setEditedEvent]
+  );
 
   return (
     <button
       className={`event ${event.eventColor}${event.allDayStatus ? " all-day-event" : ""}${
         event.everyYear ? " every-year" : ""
+      }`}
+      aria-label={`Naciśnij aby edytować. ${
+        event.everyYear ? "To wydarzenie powtarza się co roku." : ""
       }`}
       onClick={() => openEditEventModal(event)}
     >

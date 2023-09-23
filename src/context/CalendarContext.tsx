@@ -1,5 +1,5 @@
 // React
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useMemo, useReducer, useState } from "react";
 // Types
 import {
   ContextType,
@@ -69,9 +69,9 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
 
     case REDUCER_ACTIONS.EDIT_EVENT: {
       const editingEvent = action.payload;
-      const updatedEvents = events.map((event) =>
-        event.id === editingEvent.id ? editingEvent : event
-      );
+      const eventIndex = events.findIndex((event) => event.id === editingEvent.id);
+      const updatedEvents = [...events];
+      updatedEvents[eventIndex] = editingEvent;
       return {
         ...state,
         events: updatedEvents,
@@ -129,18 +129,25 @@ export function CalendarProvider({ children }: ChildrenType) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [editedEvent, setEditedEvent] = useState<NewEventType>();
 
-  const contextValues = {
-    state: state,
-    dispatch: dispatch,
-    selectedDate: selectedDate,
-    setSelectedDate: setSelectedDate,
-    editedEvent: editedEvent,
-    setEditedEvent: setEditedEvent,
-  };
+  const contextValues = useMemo(
+    () => ({
+      state: state,
+      dispatch: dispatch,
+      selectedDate: selectedDate,
+      setSelectedDate: setSelectedDate,
+      editedEvent: editedEvent,
+      setEditedEvent: setEditedEvent,
+    }),
+    [state, dispatch, selectedDate, setSelectedDate, editedEvent, setEditedEvent]
+  );
 
   useEffect(() => {
-    if (!localStorage.getItem("events")) {
-      localStorage.setItem("events", "[]");
+    try {
+      if (!localStorage.getItem("events")) {
+        localStorage.setItem("events", "[]");
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
     }
   }, []);
 

@@ -1,19 +1,23 @@
 // Context
 import { CalendarProvider } from "./context/CalendarContext";
 // Components
-import CalendarHeader from "./Components/CalendarHeader";
-import CalendarGrid from "./Components/CalendarGrid";
-import NewEventModal from "./Components/NewEventModal";
+import CalendarHeader from "./layout/CalendarHeader";
+import CalendarGrid from "./layout/CalendarGrid";
+import NewEventModal from "./layout/NewEventModal";
 
 export default function App() {
   return (
     <CalendarProvider>
-      <div className="calendar">
+      <main>
+        <h1 className="visually-hidden">Kalendarz</h1>
         <CalendarHeader />
-        <CalendarGrid />
-      </div>
+        <article className="calendar">
+          <h2 className="visually-hidden">Siatka kalendarza</h2>
+          <CalendarGrid />
+        </article>
 
-      <NewEventModal />
+        <NewEventModal />
+      </main>
     </CalendarProvider>
   );
 }
