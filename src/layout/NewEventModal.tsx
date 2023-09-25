@@ -218,7 +218,6 @@ export default function NewEventModal() {
     } else {
       dispatch({
         type: REDUCER_ACTIONS.EDIT_EVENT,
-        payload: editingEvent,
       });
       dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
     }
@@ -311,13 +310,11 @@ export default function NewEventModal() {
                 <legend className="visually-hidden">Wybór czasu</legend>
                 <TimeInput
                   timeType="start"
-                  // comparedEvent={newEvent}
                   comparedEvent={editingEvent ? editingEvent : newEvent}
                   onChangeFunction={handleEventTimeChange}
                 />
                 <TimeInput
                   timeType="end"
-                  // comparedEvent={newEvent}
                   comparedEvent={editingEvent ? editingEvent : newEvent}
                   onChangeFunction={handleEventTimeChange}
                 />

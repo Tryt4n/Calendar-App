@@ -87,7 +87,6 @@ export type ReducerActionsType =
     }
   | {
       type: "editEvent";
-      payload: NewEventType;
     }
   | {
       type: "deleteEvent";

@@ -11,16 +11,12 @@ type EventButtonType = {
 };
 
 export default function EventButton({ event }: EventButtonType) {
-  // const { dispatch, setEditedEvent } = useCalendar();
   const { dispatch } = useCalendar();
 
   const openEditEventModal = useCallback(
     (event: NewEventType) => {
-      // dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
       dispatch({ type: REDUCER_ACTIONS.OPEN_EDITED_EVENT, payload: event });
-      // setEditedEvent(event);
     },
-    // [dispatch, setEditedEvent]
     [dispatch]
   );
 
