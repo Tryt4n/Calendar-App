@@ -14,7 +14,7 @@ export default function ColorRadioInput({
   comparedValue,
   onChangeFunction,
 }: ColorRadioInputType) {
-  const { editedEvent } = useCalendar();
+  const { state } = useCalendar();
 
   return (
     <>
@@ -24,7 +24,9 @@ export default function ColorRadioInput({
         value={color}
         id={color}
         className="color-radio"
-        checked={editedEvent ? editedEvent.eventColor === color : comparedValue === color}
+        checked={
+          state.editingEvent ? state.editingEvent.eventColor === color : comparedValue === color
+        }
         onChange={onChangeFunction}
       />
       <label htmlFor={color}>

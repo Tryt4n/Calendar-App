@@ -10,8 +10,14 @@ type ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth";
   OPEN_NEW_TASK_MODAL: "openNewTaskModal";
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal";
-  EDIT_EVENT: "editEvent";
   ADD_NEW_EVENT: "addNewEvent";
+  OPEN_EDITED_EVENT: "openEditedEvent";
+  EDIT_EVENT_NAME: "editEventName";
+  EDIT_EVENT_ALL_DAY_STATUS: "editEventAllDayStatus";
+  EDIT_EVENT_START_TIME: "editEventStartTime";
+  EDIT_EVENT_END_TIME: "editEventEndTime";
+  EDIT_EVENT_COLOR: "editEventColor";
+  EDIT_EVENT: "editEvent";
   DELETE_EVENT: "deleteEvent";
 };
 
@@ -20,6 +26,8 @@ export type ReducerStateType = {
   visibleDates: Date[];
   isModalOpen: boolean;
   events: NewEventType[];
+  selectedDate: Date;
+  editingEvent: NewEventType | undefined;
 };
 
 export type ReducerActionsType =
@@ -40,16 +48,45 @@ export type ReducerActionsType =
     }
   | {
       type: "openNewTaskModal";
+      payload: Date;
     }
   | {
       type: "closeNewTaskModal";
     }
   | {
-      type: "editEvent";
+      type: "addNewEvent";
       payload: NewEventType;
     }
   | {
-      type: "addNewEvent";
+      type: "openEditedEvent";
+      payload: NewEventType;
+    }
+  | {
+      type: "editEventName";
+      payload: string;
+    }
+  | {
+      type: "editEventAllDayStatus";
+      payload: {
+        allDayStatus: boolean;
+        startTime?: string;
+        endTime?: string;
+      };
+    }
+  | {
+      type: "editEventStartTime";
+      payload: string;
+    }
+  | {
+      type: "editEventEndTime";
+      payload: string;
+    }
+  | {
+      type: "editEventColor";
+      payload: string;
+    }
+  | {
+      type: "editEvent";
       payload: NewEventType;
     }
   | {
@@ -60,10 +97,6 @@ export type ReducerActionsType =
 export type ContextType = {
   state: ReducerStateType;
   dispatch: React.Dispatch<ReducerActionsType>;
-  selectedDate: Date;
-  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
-  editedEvent: undefined | NewEventType;
-  setEditedEvent: React.Dispatch<React.SetStateAction<undefined | NewEventType>>;
 };
 
 export type ChildrenType = { children?: ReactElement | ReactElement[] };
@@ -77,7 +110,13 @@ export const REDUCER_ACTIONS: ActionsType = {
   SHOW_CURRENT_MONTH: "showCurrentMonth",
   OPEN_NEW_TASK_MODAL: "openNewTaskModal",
   CLOSE_NEW_TASK_MODAL: "closeNewTaskModal",
-  EDIT_EVENT: "editEvent",
   ADD_NEW_EVENT: "addNewEvent",
+  OPEN_EDITED_EVENT: "openEditedEvent",
+  EDIT_EVENT_NAME: "editEventName",
+  EDIT_EVENT_ALL_DAY_STATUS: "editEventAllDayStatus",
+  EDIT_EVENT_START_TIME: "editEventStartTime",
+  EDIT_EVENT_END_TIME: "editEventEndTime",
+  EDIT_EVENT_COLOR: "editEventColor",
+  EDIT_EVENT: "editEvent",
   DELETE_EVENT: "deleteEvent",
 };

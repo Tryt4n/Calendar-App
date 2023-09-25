@@ -15,13 +15,17 @@ import pl from "date-fns/locale/pl";
 import isValid from "date-fns/isValid";
 
 export default function NewEventModal() {
-  const { state, dispatch, selectedDate, editedEvent, setEditedEvent } = useCalendar();
+  const { state, dispatch } = useCalendar();
 
-  const isValidDate = editedEvent
-    ? editedEvent.eventDate && isValid(editedEvent.eventDate)
-    : selectedDate && isValid(selectedDate);
+  const { editingEvent, selectedDate, isModalOpen, events } = state;
+
+  const isValidDate = editingEvent
+    ? editingEvent.eventDate && isValid(editingEvent.eventDate)
+    : isValid(selectedDate);
   const formattedDate = isValidDate
-    ? format(editedEvent ? editedEvent.eventDate : selectedDate, "d/L/yy", { locale: pl })
+    ? format(editingEvent ? editingEvent.eventDate : selectedDate, "d/L/yy", {
+        locale: pl,
+      })
     : "";
 
   const newEventInitState: NewEventType = {
@@ -36,6 +40,7 @@ export default function NewEventModal() {
   };
 
   const [newEvent, setNewEvent] = useState(newEventInitState);
+
   //? For handling edge case where startTime and endTime are undefined when all-day checkbox is checked and immediately after unchecked
   const [previousTimeValues, setPreviousTimeValues] = useState<PreviousTimeValuesType>({
     startTime: undefined,
@@ -43,7 +48,6 @@ export default function NewEventModal() {
   });
 
   function closeNewTaskModal() {
-    if (editedEvent) setEditedEvent(undefined);
     setNewEvent(newEventInitState);
     dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
   }
@@ -57,20 +61,16 @@ export default function NewEventModal() {
 
     return () => window.removeEventListener("keydown", closeModalOnEscapeKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.isModalOpen]);
+  }, [isModalOpen]);
 
   function handleEventNameChange(e: ChangeEvent<HTMLInputElement>) {
     const inputName = e.target.value;
     const sanitizedInputName = inputName.trimStart(); //? Delete space at the beginning of the input name
 
-    if (editedEvent) {
-      setEditedEvent((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            eventName: sanitizedInputName,
-          };
-        }
+    if (editingEvent) {
+      dispatch({
+        type: REDUCER_ACTIONS.EDIT_EVENT_NAME,
+        payload: sanitizedInputName,
       });
     } else {
       setNewEvent((prevState) => ({
@@ -82,36 +82,32 @@ export default function NewEventModal() {
   }
 
   function handleAllDayEventCheckboxChange(e: ChangeEvent<HTMLInputElement>) {
-    if (editedEvent) {
+    if (editingEvent) {
       if (e.target.checked) {
         //? If the checkbox is checked, keep the previous startTime and endTime values
         setPreviousTimeValues({
-          startTime: editedEvent.startTime,
-          endTime: editedEvent.endTime,
+          startTime: editingEvent.startTime,
+          endTime: editingEvent.endTime,
         });
 
         //? Reset startTime and endTime
-        setEditedEvent((prevState) => {
-          if (prevState) {
-            return {
-              ...prevState,
-              allDayStatus: true,
-              startTime: undefined,
-              endTime: undefined,
-            };
-          }
+        dispatch({
+          type: REDUCER_ACTIONS.EDIT_EVENT_ALL_DAY_STATUS,
+          payload: {
+            allDayStatus: true,
+            startTime: undefined,
+            endTime: undefined,
+          },
         });
       } else {
         //? If the checkbox is unchecked, restore the previous startTime and endTime values
-        setEditedEvent((prevState) => {
-          if (prevState) {
-            return {
-              ...prevState,
-              allDayStatus: false,
-              startTime: previousTimeValues.startTime,
-              endTime: previousTimeValues.endTime,
-            };
-          }
+        dispatch({
+          type: REDUCER_ACTIONS.EDIT_EVENT_ALL_DAY_STATUS,
+          payload: {
+            allDayStatus: false,
+            startTime: previousTimeValues.startTime,
+            endTime: previousTimeValues.endTime,
+          },
         });
       }
     } else {
@@ -156,14 +152,13 @@ export default function NewEventModal() {
   }
 
   function handleEventTimeChange(e: ChangeEvent<HTMLInputElement>, fieldName: string) {
-    if (editedEvent) {
-      setEditedEvent((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            [fieldName]: e.target.value,
-          };
-        }
+    if (editingEvent) {
+      dispatch({
+        type:
+          fieldName === "startTime"
+            ? REDUCER_ACTIONS.EDIT_EVENT_START_TIME
+            : REDUCER_ACTIONS.EDIT_EVENT_END_TIME,
+        payload: e.target.value,
       });
     } else {
       setNewEvent((prevState) => ({
@@ -174,15 +169,8 @@ export default function NewEventModal() {
   }
 
   function handleEventColorChange(e: ChangeEvent<HTMLInputElement>) {
-    if (editedEvent) {
-      setEditedEvent((prevState) => {
-        if (prevState) {
-          return {
-            ...prevState,
-            eventColor: e.target.value,
-          };
-        }
-      });
+    if (editingEvent) {
+      dispatch({ type: REDUCER_ACTIONS.EDIT_EVENT_COLOR, payload: e.target.value });
     } else {
       setNewEvent((prevState) => ({
         ...prevState,
@@ -193,7 +181,7 @@ export default function NewEventModal() {
 
   function addNewEvent() {
     //? Checking to see if a event with the same name already exists in the same day
-    const isDuplicateEvent = state.events.some(
+    const isDuplicateEvent = events.some(
       (event) =>
         event.eventName === newEvent.eventName &&
         event.eventDate.toISOString() === newEvent.eventDate.toISOString()
@@ -213,38 +201,38 @@ export default function NewEventModal() {
   }
 
   function editEvent() {
-    if (!editedEvent) return;
+    if (!editingEvent) return;
 
-    const isDuplicateEvent = state.events.some(
-      (event) =>
-        event.id !== editedEvent.id && //? Checking if it's not `editedEvent`
-        event.eventName === editedEvent.eventName &&
-        event.eventDate.toISOString() === editedEvent.eventDate.toISOString()
-    );
+    const isDuplicateEvent = events.some((event) => {
+      if (editingEvent) {
+        return (
+          event.id !== editingEvent.id && //? Checking if it's not currently editing event
+          event.eventName === editingEvent.eventName &&
+          event.eventDate.toISOString() === editingEvent.eventDate.toISOString()
+        );
+      }
+    });
 
     if (isDuplicateEvent) {
       alert("Tego dnia istnieje już wydarzenie o takiej samej nazwie!");
     } else {
       dispatch({
         type: REDUCER_ACTIONS.EDIT_EVENT,
-        payload: editedEvent,
+        payload: editingEvent,
       });
       dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
-      //? Reset `editedEvent`
-      setEditedEvent(undefined);
     }
   }
 
   function deleteEvent() {
-    if (typeof editedEvent !== "undefined") {
-      dispatch({ type: REDUCER_ACTIONS.DELETE_EVENT, payload: editedEvent });
+    if (typeof editingEvent !== "undefined") {
+      dispatch({ type: REDUCER_ACTIONS.DELETE_EVENT, payload: editingEvent });
     }
-    setEditedEvent(undefined);
   }
 
   return (
     <>
-      {state.isModalOpen && (
+      {isModalOpen && (
         <article className="modal">
           <div
             className="overlay"
@@ -252,12 +240,12 @@ export default function NewEventModal() {
           ></div>
           <div className="modal-body">
             <header className="modal-title">
-              <h2>{editedEvent ? "Edytuj Wydarzenie" : "Dodaj Wydarzenie"}</h2>
+              <h2>{editingEvent ? "Edytuj Wydarzenie" : "Dodaj Wydarzenie"}</h2>
               <time
                 dateTime={
-                  editedEvent
-                    ? editedEvent.eventDate.toLocaleDateString()
-                    : selectedDate.toLocaleDateString()
+                  editingEvent
+                    ? editingEvent.eventDate.toLocaleDateString()
+                    : selectedDate.toLocaleTimeString()
                 }
               >
                 {formattedDate}
@@ -274,7 +262,7 @@ export default function NewEventModal() {
               autoComplete="off"
               onSubmit={(e) => {
                 e.preventDefault();
-                editedEvent ? editEvent() : addNewEvent();
+                editingEvent ? editEvent() : addNewEvent();
               }}
             >
               <fieldset className="form-group">
@@ -286,7 +274,8 @@ export default function NewEventModal() {
                   id="name"
                   required
                   minLength={1}
-                  value={editedEvent ? editedEvent.eventName : newEvent.eventName}
+                  maxLength={50}
+                  value={editingEvent ? editingEvent.eventName : newEvent.eventName}
                   onChange={handleEventNameChange}
                 />
               </fieldset>
@@ -298,19 +287,19 @@ export default function NewEventModal() {
                     type="checkbox"
                     name="all-day"
                     id="all-day"
-                    checked={editedEvent ? editedEvent.allDayStatus : newEvent.allDayStatus}
+                    checked={editingEvent ? editingEvent.allDayStatus : newEvent.allDayStatus}
                     onChange={handleAllDayEventCheckboxChange}
                   />
                   <label htmlFor="all-day">Cały dzień?</label>
                 </div>
-                {((newEvent && !editedEvent) || editedEvent?.everyYear) && (
+                {((newEvent && !editingEvent) || editingEvent?.everyYear) && (
                   <div className="form-group checkbox">
                     <input
                       type="checkbox"
                       name="every-year"
                       id="every-year"
-                      checked={editedEvent?.everyYear}
-                      disabled={editedEvent?.everyYear}
+                      checked={editingEvent?.everyYear}
+                      disabled={editingEvent?.everyYear}
                       onChange={handleEveryYearEventCheckboxChange}
                     />
                     <label htmlFor="every-year">Każdego roku?</label>
@@ -322,12 +311,14 @@ export default function NewEventModal() {
                 <legend className="visually-hidden">Wybór czasu</legend>
                 <TimeInput
                   timeType="start"
-                  comparedEvent={newEvent}
+                  // comparedEvent={newEvent}
+                  comparedEvent={editingEvent ? editingEvent : newEvent}
                   onChangeFunction={handleEventTimeChange}
                 />
                 <TimeInput
                   timeType="end"
-                  comparedEvent={newEvent}
+                  // comparedEvent={newEvent}
+                  comparedEvent={editingEvent ? editingEvent : newEvent}
                   onChangeFunction={handleEventTimeChange}
                 />
               </fieldset>
@@ -358,9 +349,9 @@ export default function NewEventModal() {
                   className="btn btn-success"
                   type="submit"
                 >
-                  {editedEvent ? "Edytuj" : "Dodaj"}
+                  {editingEvent ? "Edytuj" : "Dodaj"}
                 </button>
-                {editedEvent && (
+                {editingEvent && (
                   <button
                     className="btn btn-delete"
                     type="button"

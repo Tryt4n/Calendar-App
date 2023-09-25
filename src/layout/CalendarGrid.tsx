@@ -15,11 +15,10 @@ import isSameMonth from "date-fns/isSameMonth";
 import pl from "date-fns/locale/pl";
 
 export default function CalendarGrid() {
-  const { state, dispatch, setSelectedDate } = useCalendar();
+  const { state, dispatch } = useCalendar();
 
   function openNewEventModal(date: Date) {
-    dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL });
-    setSelectedDate(date);
+    dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL, payload: date });
   }
 
   const sortEventsByAllDayStatusAndStartTime = useCallback(

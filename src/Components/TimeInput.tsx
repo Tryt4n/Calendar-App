@@ -1,5 +1,5 @@
 // React
-import React, { ChangeEvent } from "react";
+import { ChangeEvent } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 //Types
@@ -18,12 +18,14 @@ interface TimeInputProps {
   onChangeFunction: (e: ChangeEvent<HTMLInputElement>, fieldName: string) => void;
 }
 
-const TimeInput: React.FC<TimeInputProps> = ({ timeType, comparedEvent, onChangeFunction }) => {
-  const { editedEvent } = useCalendar();
+function TimeInput({ timeType, comparedEvent, onChangeFunction }: TimeInputProps) {
+  const { state } = useCalendar();
+  const { editingEvent } = state;
 
-  const label = timeType === "start" ? "Początek" : "Koniec";
-  const name = timeType === "start" ? "start-time" : "end-time";
-  const onChangeName = timeType === "start" ? "startTime" : "endTime";
+  const isStartTime = timeType === "start";
+  const label = isStartTime ? "Początek" : "Koniec";
+  const name = isStartTime ? "start-time" : "end-time";
+  const onChangeName = isStartTime ? "startTime" : "endTime";
 
   //? Formats newEvent.endTime to one minute greater than newEvent.startTime
   const formatNewEndTimeDate = (stringDate: string) => {
@@ -35,7 +37,7 @@ const TimeInput: React.FC<TimeInputProps> = ({ timeType, comparedEvent, onChange
   };
 
   const minEndValue =
-    timeType === "end" && typeof comparedEvent.startTime === "string"
+    !isStartTime && typeof comparedEvent.startTime === "string"
       ? formatNewEndTimeDate(comparedEvent.startTime)
       : undefined;
 
@@ -46,14 +48,14 @@ const TimeInput: React.FC<TimeInputProps> = ({ timeType, comparedEvent, onChange
         type="time"
         name={name}
         id={name}
-        value={timeType === "start" ? editedEvent?.startTime : editedEvent?.endTime}
-        disabled={editedEvent ? editedEvent.allDayStatus : comparedEvent.allDayStatus}
-        required={editedEvent ? !editedEvent.allDayStatus : !comparedEvent.allDayStatus}
+        value={isStartTime ? editingEvent?.startTime : editingEvent?.endTime}
+        disabled={editingEvent ? editingEvent.allDayStatus : comparedEvent.allDayStatus}
+        required={editingEvent ? !editingEvent.allDayStatus : !comparedEvent.allDayStatus}
         min={minEndValue}
         onChange={(e) => onChangeFunction(e, onChangeName)}
       />
     </div>
   );
-};
+}
 
 export default TimeInput;

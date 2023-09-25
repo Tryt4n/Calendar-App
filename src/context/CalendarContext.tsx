@@ -1,5 +1,5 @@
 // React
-import { createContext, useEffect, useMemo, useReducer, useState } from "react";
+import { createContext, useEffect, useMemo, useReducer } from "react";
 // Types
 import {
   ContextType,
@@ -26,7 +26,7 @@ function handleFormat(date: Date) {
 
 function reducer(state: ReducerStateType, action: ReducerActionsType) {
   const { type } = action;
-  const { currentMonth, events } = state;
+  const { currentMonth, events, editingEvent } = state;
 
   function handleDateChange(date: Date, value = 0) {
     const newDate = addMonths(date, value);
@@ -35,13 +35,6 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
       ...state,
       currentMonth: newDate,
       visibleDates: newVisibleDate,
-    };
-  }
-
-  function handleNewTaskModalOpen(boolean: boolean) {
-    return {
-      ...state,
-      isModalOpen: boolean,
     };
   }
 
@@ -61,20 +54,131 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.SHOW_CURRENT_MONTH:
       return handleDateChange(new Date());
 
-    case REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL:
-      return handleNewTaskModalOpen(true);
+    case REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL: {
+      const newSelectedDate = action.payload;
+      return {
+        ...state,
+        isModalOpen: true,
+        selectedDate: newSelectedDate,
+      };
+    }
 
     case REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL:
-      return handleNewTaskModalOpen(false);
+      return {
+        ...state,
+        isModalOpen: false,
+        editingEvent: undefined,
+      };
+
+    case REDUCER_ACTIONS.ADD_NEW_EVENT: {
+      const newEvent = action.payload;
+      return {
+        ...state,
+        events: [...events, newEvent],
+      };
+    }
+
+    case REDUCER_ACTIONS.OPEN_EDITED_EVENT: {
+      const editingEvent = action.payload;
+      return {
+        ...state,
+        isModalOpen: true,
+        editingEvent: editingEvent,
+      };
+    }
+
+    case REDUCER_ACTIONS.EDIT_EVENT_NAME: {
+      const newEventName = action.payload;
+
+      if (!editingEvent) return { ...state };
+
+      const updatedEditingEvent = {
+        ...editingEvent,
+        eventName: newEventName,
+      };
+
+      return {
+        ...state,
+        editingEvent: updatedEditingEvent,
+      };
+    }
+
+    case REDUCER_ACTIONS.EDIT_EVENT_ALL_DAY_STATUS: {
+      const newEventAllDayStatus = action.payload;
+
+      if (!editingEvent) return { ...state };
+
+      const updatedEditingEvent = {
+        ...editingEvent,
+        allDayStatus: newEventAllDayStatus.allDayStatus,
+        startTime: newEventAllDayStatus.startTime,
+        endTime: newEventAllDayStatus.endTime,
+      };
+
+      return {
+        ...state,
+        editingEvent: updatedEditingEvent,
+      };
+    }
+
+    case REDUCER_ACTIONS.EDIT_EVENT_START_TIME: {
+      const newEventStartTime = action.payload;
+
+      if (!editingEvent) return { ...state };
+
+      const updatedEditingEvent = {
+        ...editingEvent,
+        startTime: newEventStartTime,
+      };
+
+      return {
+        ...state,
+        editingEvent: updatedEditingEvent,
+      };
+    }
+
+    case REDUCER_ACTIONS.EDIT_EVENT_END_TIME: {
+      const newEventEndTime = action.payload;
+
+      if (!editingEvent) return { ...state };
+
+      const updatedEditingEvent = {
+        ...editingEvent,
+        endTime: newEventEndTime,
+      };
+
+      return {
+        ...state,
+        editingEvent: updatedEditingEvent,
+      };
+    }
+
+    case REDUCER_ACTIONS.EDIT_EVENT_COLOR: {
+      const newEventColor = action.payload;
+
+      if (!editingEvent) return { ...state };
+
+      const updatedEditingEvent = {
+        ...editingEvent,
+        eventColor: newEventColor,
+      };
+
+      return {
+        ...state,
+        editingEvent: updatedEditingEvent,
+      };
+    }
 
     case REDUCER_ACTIONS.EDIT_EVENT: {
-      const editingEvent = action.payload;
+      if (!editingEvent) return { ...state };
+
       const eventIndex = events.findIndex((event) => event.id === editingEvent.id);
       const updatedEvents = [...events];
       updatedEvents[eventIndex] = editingEvent;
       return {
         ...state,
         events: updatedEvents,
+        editingEvent: undefined,
       };
     }
 
@@ -85,14 +189,6 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
         ...state,
         events: updatedEvents,
         isModalOpen: false,
-      };
-    }
-
-    case REDUCER_ACTIONS.ADD_NEW_EVENT: {
-      const newEvent = action.payload;
-      return {
-        ...state,
-        events: [...events, newEvent],
       };
     }
 
@@ -121,24 +217,19 @@ const initState: ReducerStateType = {
   visibleDates: visibleDates,
   isModalOpen: false,
   events: eventsWithDateAsDate,
+  selectedDate: new Date(),
+  editingEvent: undefined,
 };
 
 export function CalendarProvider({ children }: ChildrenType) {
   const [state, dispatch] = useReducer(reducer, initState);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [editedEvent, setEditedEvent] = useState<NewEventType>();
-
   const contextValues = useMemo(
     () => ({
       state: state,
       dispatch: dispatch,
-      selectedDate: selectedDate,
-      setSelectedDate: setSelectedDate,
-      editedEvent: editedEvent,
-      setEditedEvent: setEditedEvent,
     }),
-    [state, dispatch, selectedDate, setSelectedDate, editedEvent, setEditedEvent]
+    [state, dispatch]
   );
 
   useEffect(() => {
