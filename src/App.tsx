@@ -17,8 +17,8 @@ export default function App() {
           <CalendarGrid />
         </article>
 
+        <MoreEventsModal />
         <NewEventModal />
-        {/* <MoreEventsModal /> */}
       </main>
     </CalendarProvider>
   );

@@ -9,6 +9,8 @@ import {
   REDUCER_ACTIONS,
 } from "../types/ContextTypes";
 import { NewEventType } from "../types/NewEventType";
+// Helpers
+import { sortEventsByAllDayStatusAndStartTime } from "../helpers/sortEvents";
 // date-fns
 import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
@@ -86,20 +88,58 @@ function editEvent(state: ReducerStateType, editingEvent: NewEventType) {
     return event;
   });
 
+  const updatedEventsToDisplayInModal = state.eventsToDisplayInModal.map((event) => {
+    if (event.id === editingEvent.id) {
+      return editingEvent;
+    }
+    return event;
+  });
+
   return {
     ...state,
     events: updatedEvents,
     editingEvent: undefined,
+    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(
+      sortEventsByAllDayStatusAndStartTime
+    ),
   };
+}
+
+function handleMoreEventsModal(state: ReducerStateType, modalStates: Partial<ReducerStateType>) {
+  const newState: ReducerStateType = {
+    ...state,
+    selectedDate:
+      modalStates.isMoreEventsModalOpen !== undefined
+        ? (modalStates.selectedDate as Date)
+        : state.selectedDate,
+    isMoreEventsModalOpen:
+      modalStates.isMoreEventsModalOpen !== undefined
+        ? modalStates.isMoreEventsModalOpen
+        : state.isMoreEventsModalOpen,
+    eventsToDisplayInModal:
+      modalStates.eventsToDisplayInModal !== undefined
+        ? modalStates.eventsToDisplayInModal
+        : state.eventsToDisplayInModal,
+  };
+
+  return newState;
 }
 
 function deleteEvent(state: ReducerStateType, deletingEvent: NewEventType) {
   const updatedEvents = state.events.filter((event) => event.id !== deletingEvent.id);
+
+  const updatedEventsToDisplayInModal = state.eventsToDisplayInModal.filter(
+    (event) => event.id !== deletingEvent.id
+  );
+
   return {
     ...state,
     events: updatedEvents,
     isModalOpen: false,
     editingEvent: undefined,
+    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(
+      sortEventsByAllDayStatusAndStartTime
+    ),
   };
 }
 
@@ -153,6 +193,9 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.EDIT_EVENT:
       return editEvent({ ...state }, editingEvent as NewEventType);
 
+    case REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE:
+      return handleMoreEventsModal({ ...state }, action.payload);
+
     case REDUCER_ACTIONS.DELETE_EVENT:
       return deleteEvent({ ...state }, action.payload);
 
@@ -183,6 +226,8 @@ const initState: ReducerStateType = {
   events: eventsWithDateAsDate,
   selectedDate: new Date(),
   editingEvent: undefined,
+  isMoreEventsModalOpen: false,
+  eventsToDisplayInModal: [],
 };
 
 export function CalendarProvider({ children }: ChildrenType) {

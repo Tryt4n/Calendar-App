@@ -1,38 +1,78 @@
+// React
+import { useEffect, useState } from "react";
+// Context
+import { useCalendar } from "../context/useCalendar";
+// Components
+import EventButton from "../Components/EventButton";
+// Types
+import { REDUCER_ACTIONS } from "../types/ContextTypes";
+// date-fns
+import format from "date-fns/format";
+import pl from "date-fns/locale/pl";
+
 export default function MoreEventsModal() {
+  const { state, dispatch } = useCalendar();
+  const [isModalClosing, setIsModalClosing] = useState(false);
+
+  const formattedDate = state.selectedDate
+    ? format(state.selectedDate, "d/L/yy", { locale: pl })
+    : "";
+
+  function closeModal() {
+    setIsModalClosing(true);
+    setTimeout(() => {
+      setIsModalClosing(false);
+
+      dispatch({
+        type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
+        payload: {
+          isMoreEventsModalOpen: false,
+          eventsToDisplayInModal: [],
+        },
+      });
+    }, 250);
+  }
+
+  function closeModalOnEscapeKey(e: KeyboardEvent) {
+    if (e.key === "Escape") closeModal();
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", closeModalOnEscapeKey);
+
+    return () => window.removeEventListener("keydown", closeModalOnEscapeKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.isMoreEventsModalOpen]);
+
   return (
-    <div className="modal">
-      <div className="overlay"></div>
-      <div className="modal-body">
-        <div className="modal-title">
-          6/8/23
-          <button className="close-btn">&times;</button>
-        </div>
-        <div className="events">
-          <button className="all-day-event green event">
-            <div className="event-name">Short</div>
-          </button>
-          <button className="event">
-            <div className="color-dot blue"></div>
-            <div className="event-time">7am</div>
-            <div className="event-name">Event Name</div>
-          </button>
-          <button className="event">
-            <div className="color-dot green"></div>
-            <div className="event-time">8am</div>
-            <div className="event-name">Event Name</div>
-          </button>
-          <button className="event">
-            <div className="color-dot blue"></div>
-            <div className="event-time">9am</div>
-            <div className="event-name">Event Name</div>
-          </button>
-          <button className="event">
-            <div className="color-dot blue"></div>
-            <div className="event-time">10am</div>
-            <div className="event-name">Event Name</div>
-          </button>
-        </div>
-      </div>
-    </div>
+    <>
+      {state.isMoreEventsModalOpen && (
+        <article className={`modal${isModalClosing ? " closing" : ""}`}>
+          <div
+            className="overlay"
+            role="presentation"
+          ></div>
+          <div className="modal-body">
+            <div className="modal-title">
+              {formattedDate}
+              <button
+                className="close-btn"
+                onClick={closeModal}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="events">
+              {state.eventsToDisplayInModal.map((event) => (
+                <EventButton
+                  key={event.eventName}
+                  event={event}
+                />
+              ))}
+            </div>
+          </div>
+        </article>
+      )}
+    </>
   );
 }

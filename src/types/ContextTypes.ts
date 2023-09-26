@@ -18,6 +18,7 @@ type ActionsType = {
   EDIT_EVENT_END_TIME: "editEventEndTime";
   EDIT_EVENT_COLOR: "editEventColor";
   EDIT_EVENT: "editEvent";
+  HANDLE_MORE_EVENTS_MODAL_OPEN_STATE: "handleMoreEventsModalOpenState";
   DELETE_EVENT: "deleteEvent";
 };
 
@@ -28,6 +29,8 @@ export type ReducerStateType = {
   events: NewEventType[];
   selectedDate: Date;
   editingEvent: NewEventType | undefined;
+  isMoreEventsModalOpen: boolean;
+  eventsToDisplayInModal: NewEventType[];
 };
 
 export type ReducerActionsType =
@@ -89,6 +92,14 @@ export type ReducerActionsType =
       type: "editEvent";
     }
   | {
+      type: "handleMoreEventsModalOpenState";
+      payload: {
+        selectedDate?: Date;
+        isMoreEventsModalOpen: boolean;
+        eventsToDisplayInModal: NewEventType[];
+      };
+    }
+  | {
       type: "deleteEvent";
       payload: NewEventType;
     };
@@ -117,5 +128,6 @@ export const REDUCER_ACTIONS: ActionsType = {
   EDIT_EVENT_END_TIME: "editEventEndTime",
   EDIT_EVENT_COLOR: "editEventColor",
   EDIT_EVENT: "editEvent",
+  HANDLE_MORE_EVENTS_MODAL_OPEN_STATE: "handleMoreEventsModalOpenState",
   DELETE_EVENT: "deleteEvent",
 };

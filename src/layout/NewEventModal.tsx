@@ -17,6 +17,8 @@ import isValid from "date-fns/isValid";
 export default function NewEventModal() {
   const { state, dispatch } = useCalendar();
 
+  const [isModalClosing, setIsModalClosing] = useState(false);
+
   const { editingEvent, selectedDate, isModalOpen, events } = state;
 
   const isValidDate = editingEvent
@@ -48,8 +50,13 @@ export default function NewEventModal() {
   });
 
   function closeNewTaskModal() {
-    setNewEvent(newEventInitState);
-    dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
+    setIsModalClosing(true);
+    setTimeout(() => {
+      setIsModalClosing(false);
+
+      setNewEvent(newEventInitState);
+      dispatch({ type: REDUCER_ACTIONS.CLOSE_NEW_TASK_MODAL });
+    }, 250);
   }
 
   function closeModalOnEscapeKey(e: KeyboardEvent) {
@@ -232,7 +239,7 @@ export default function NewEventModal() {
   return (
     <>
       {isModalOpen && (
-        <article className="modal">
+        <article className={`modal${isModalClosing ? " closing" : ""}`}>
           <div
             className="overlay"
             role="presentation"
@@ -247,6 +254,7 @@ export default function NewEventModal() {
                     : selectedDate.toLocaleTimeString()
                 }
               >
+                {editingEvent?.everyYear && "Od "}
                 {formattedDate}
               </time>
               <button
