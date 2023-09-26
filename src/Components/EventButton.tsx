@@ -28,6 +28,7 @@ export default function EventButton({ event }: EventButtonType) {
       aria-label={`Naciśnij aby edytować. ${
         event.everyYear ? "To wydarzenie powtarza się co roku." : ""
       }`}
+      title={event.eventName}
       onClick={() => openEditEventModal(event)}
     >
       {!event.allDayStatus && (

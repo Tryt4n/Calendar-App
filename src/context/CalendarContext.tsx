@@ -132,9 +132,8 @@ function reducer(state: ReducerStateType, action: ReducerActionsType) {
     case REDUCER_ACTIONS.ADD_NEW_EVENT:
       return addNewEvent({ ...state }, action.payload);
 
-    case REDUCER_ACTIONS.OPEN_EDITED_EVENT: {
+    case REDUCER_ACTIONS.OPEN_EDITED_EVENT:
       return openModal({ ...state }, { editingEvent: action.payload });
-    }
 
     case REDUCER_ACTIONS.EDIT_EVENT_NAME:
       return updateEditingEvent({ ...state }, { eventName: action.payload });

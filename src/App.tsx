@@ -4,6 +4,7 @@ import { CalendarProvider } from "./context/CalendarContext";
 import CalendarHeader from "./layout/CalendarHeader";
 import CalendarGrid from "./layout/CalendarGrid";
 import NewEventModal from "./layout/NewEventModal";
+import MoreEventsModal from "./layout/MoreEventsModal";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         </article>
 
         <NewEventModal />
+        {/* <MoreEventsModal /> */}
       </main>
     </CalendarProvider>
   );

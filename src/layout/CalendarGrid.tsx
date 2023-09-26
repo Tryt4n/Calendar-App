@@ -1,5 +1,5 @@
 // React
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 // Types
@@ -16,6 +16,37 @@ import pl from "date-fns/locale/pl";
 
 export default function CalendarGrid() {
   const { state, dispatch } = useCalendar();
+
+  const [maxEventButtons, setMaxEventButtons] = useState<number>();
+
+  function calculateMaxEventButtons() {
+    const eventsContainer = document.querySelector(".events");
+    const eventButton = document.querySelector(".event");
+
+    const eventsContainerHeight = eventsContainer?.clientHeight || 0;
+    const evenButtonClientRect = eventButton?.getBoundingClientRect();
+    const actualButtonHeight = evenButtonClientRect
+      ? evenButtonClientRect.bottom - evenButtonClientRect.top
+      : 0;
+    const eventButtonHeight = actualButtonHeight + 3; //? 3 is the number of event gap that is 2 plus 1px to show element only when it's should
+
+    return Math.ceil(eventsContainerHeight / eventButtonHeight);
+  }
+
+  useEffect(() => {
+    //? Calculates and sets the maxEventButtons after page load
+    const initialMaxEventButtons = calculateMaxEventButtons();
+    setMaxEventButtons(initialMaxEventButtons);
+
+    function handleResize() {
+      const newMaxEventButtons = calculateMaxEventButtons();
+      setMaxEventButtons(newMaxEventButtons);
+    }
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [state]);
 
   function openNewEventModal(date: Date) {
     dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL, payload: date });
@@ -69,6 +100,16 @@ export default function CalendarGrid() {
           })
           .sort(sortEventsByAllDayStatusAndStartTime);
 
+        function showMoreEventModal() {
+          const displayedSortedEvents = sortedEvents.slice(0, maxEventButtons);
+
+          const eventsToDisplayInModal = sortedEvents.filter(
+            (event) => !displayedSortedEvents.includes(event)
+          );
+
+          return eventsToDisplayInModal;
+        }
+
         return (
           <div
             className={`day${!isCurrentMonth ? " non-month-day" : ""}${
@@ -86,20 +127,28 @@ export default function CalendarGrid() {
               >
                 +
               </button>
-              {sortedEvents.length > 0 && (
-                <div
-                  className="events"
-                  aria-describedby="sorting-description"
-                >
-                  {sortedEvents.map((event) => (
-                    <EventButton
-                      key={event.eventName}
-                      event={event}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
+            {sortedEvents.length > 0 && (
+              <div
+                className="events"
+                aria-describedby="sorting-description"
+              >
+                {sortedEvents.slice(0, maxEventButtons).map((event) => (
+                  <EventButton
+                    key={event.eventName}
+                    event={event}
+                  />
+                ))}
+              </div>
+            )}
+            {maxEventButtons && sortedEvents.length > maxEventButtons ? (
+              <button
+                className="events-view-more-btn"
+                onClick={() => showMoreEventModal()}
+              >{`+${sortedEvents.length - maxEventButtons} Więcej`}</button>
+            ) : (
+              ""
+            )}
           </div>
         );
       })}
