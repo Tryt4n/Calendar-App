@@ -1,17 +1,21 @@
 import { NewEventType } from "../types/NewEventType";
 
-export function sortEventsByAllDayStatusAndStartTime(a: NewEventType, b: NewEventType): number {
+export function sortEvents(a: NewEventType, b: NewEventType): number {
   //? Sort by `everyYear` first
-  if (a.everyYear && !b.everyYear) {
+  const aEveryYear = a.everyYear ?? false;
+  const bEveryYear = b.everyYear ?? false;
+  if (aEveryYear && !bEveryYear) {
     return -1; //? The first element has `everyYear` true, so it should be first.
-  } else if (!a.everyYear && b.everyYear) {
+  } else if (!aEveryYear && bEveryYear) {
     return 1; //? The second element has `everyYear` true, so it should be the second one.
   }
 
   //? If both have `everyYear` true or false, then sort by `allDayStatus`
-  if (a.allDayStatus && !b.allDayStatus) {
+  const aAllDayStatus = a.allDayStatus ?? false;
+  const bAllDayStatus = b.allDayStatus ?? false;
+  if (aAllDayStatus && !bAllDayStatus) {
     return -1; //? The first element has `allDayStatus` true, so it should be first.
-  } else if (!a.allDayStatus && b.allDayStatus) {
+  } else if (!aAllDayStatus && bAllDayStatus) {
     return 1; //? The second element has `allDayStatus` true, so it should be the second one.
   }
 

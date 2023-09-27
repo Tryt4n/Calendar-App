@@ -1,7 +1,7 @@
 // React
 import { ChangeEvent } from "react";
-// Context
-import { useCalendar } from "../context/useCalendar";
+// Custom Hooks
+import { useCalendar } from "../hooks/useCalendar";
 
 type ColorRadioInputType = {
   color: string;

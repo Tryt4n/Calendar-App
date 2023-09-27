@@ -1,7 +1,8 @@
 // React
-import { useEffect, useState } from "react";
-// Context
-import { useCalendar } from "../context/useCalendar";
+import { useState } from "react";
+// Custom Hooks
+import { useCalendar } from "../hooks/useCalendar";
+import { useEscapeKeyHandler } from "../hooks/useEscapeKeyHandler";
 // Components
 import ClosingBtn from "../Components/ClosingBtn";
 import EventButton from "../Components/EventButton";
@@ -33,17 +34,7 @@ export default function MoreEventsModal() {
       });
     }, 250);
   }
-
-  function closeModalOnEscapeKey(e: KeyboardEvent) {
-    if (e.key === "Escape") closeModal();
-  }
-
-  useEffect(() => {
-    window.addEventListener("keydown", closeModalOnEscapeKey);
-
-    return () => window.removeEventListener("keydown", closeModalOnEscapeKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.isMoreEventsModalOpen]);
+  useEscapeKeyHandler(closeModal);
 
   return (
     <>

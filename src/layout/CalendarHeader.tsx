@@ -1,7 +1,7 @@
 // React
 import { useCallback } from "react";
 //Context
-import { useCalendar } from "../context/useCalendar";
+import { useCalendar } from "../hooks/useCalendar";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 // date-fns

@@ -107,6 +107,8 @@ export type ReducerActionsType =
 export type ContextType = {
   state: ReducerStateType;
   dispatch: React.Dispatch<ReducerActionsType>;
+  newEvent: NewEventType;
+  setNewEvent: React.Dispatch<React.SetStateAction<NewEventType>>;
 };
 
 export type ChildrenType = { children?: ReactElement | ReactElement[] };

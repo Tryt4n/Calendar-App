@@ -1,5 +1,7 @@
 // React
-import { createContext, useEffect, useMemo, useReducer } from "react";
+import { createContext, useEffect, useMemo, useReducer, useState } from "react";
+// Custom Hooks
+import { useNewEventInitState } from "../hooks/useNewEventInitState";
 // Types
 import {
   ContextType,
@@ -10,7 +12,7 @@ import {
 } from "../types/ContextTypes";
 import { NewEventType } from "../types/NewEventType";
 // Helpers
-import { sortEventsByAllDayStatusAndStartTime } from "../helpers/sortEvents";
+import { sortEvents } from "../helpers/sortEvents";
 // date-fns
 import addMonths from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
@@ -99,9 +101,7 @@ function editEvent(state: ReducerStateType, editingEvent: NewEventType) {
     ...state,
     events: updatedEvents,
     editingEvent: undefined,
-    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(
-      sortEventsByAllDayStatusAndStartTime
-    ),
+    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(sortEvents),
   };
 }
 
@@ -137,9 +137,7 @@ function deleteEvent(state: ReducerStateType, deletingEvent: NewEventType) {
     events: updatedEvents,
     isModalOpen: false,
     editingEvent: undefined,
-    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(
-      sortEventsByAllDayStatusAndStartTime
-    ),
+    eventsToDisplayInModal: updatedEventsToDisplayInModal.sort(sortEvents),
   };
 }
 
@@ -233,12 +231,18 @@ const initState: ReducerStateType = {
 export function CalendarProvider({ children }: ChildrenType) {
   const [state, dispatch] = useReducer(reducer, initState);
 
+  const newEventInitState = useNewEventInitState(state.selectedDate);
+
+  const [newEvent, setNewEvent] = useState(newEventInitState);
+
   const contextValues = useMemo(
     () => ({
       state: state,
       dispatch: dispatch,
+      newEvent: newEvent,
+      setNewEvent: setNewEvent,
     }),
-    [state, dispatch]
+    [state, dispatch, newEvent, setNewEvent]
   );
 
   useEffect(() => {
@@ -254,8 +258,6 @@ export function CalendarProvider({ children }: ChildrenType) {
   useEffect(() => {
     localStorage.setItem("events", JSON.stringify(state.events));
   }, [state.events]);
-
-  // useEffect(() => console.log(state), [state]);
 
   return <CalendarContext.Provider value={contextValues}>{children}</CalendarContext.Provider>;
 }

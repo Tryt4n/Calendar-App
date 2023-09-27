@@ -1,13 +1,13 @@
 // React
 import { useEffect, useState } from "react";
-// Context
-import { useCalendar } from "../context/useCalendar";
+// Custom Hooks
+import { useCalendar } from "../hooks/useCalendar";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 // Components
 import EventButton from "../Components/EventButton";
 // Helpers
-import { sortEventsByAllDayStatusAndStartTime } from "../helpers/sortEvents";
+import { sortEvents } from "../helpers/sortEvents";
 // date-fns
 import format from "date-fns/format";
 import isBefore from "date-fns/isBefore";
@@ -49,7 +49,7 @@ export default function CalendarGrid() {
     return () => window.removeEventListener("resize", handleResize);
   }, [state]);
 
-  function sortEvents(date: Date) {
+  function sortAllEvents(date: Date) {
     return state.events
       .filter((event) => {
         const eventDate = new Date(event.eventDate);
@@ -62,7 +62,7 @@ export default function CalendarGrid() {
             eventDate.getFullYear() <= date.getFullYear()) //? Creates events only after `eventDate` year
         );
       })
-      .sort(sortEventsByAllDayStatusAndStartTime);
+      .sort(sortEvents);
   }
 
   function openNewEventModal(date: Date) {
@@ -70,7 +70,7 @@ export default function CalendarGrid() {
   }
 
   function showMoreEventsModal(date: Date) {
-    const checkingEvents = sortEvents(date);
+    const checkingEvents = sortAllEvents(date);
     const displayedSortedEvents = checkingEvents.slice(0, maxEventButtons);
     const eventsToDisplay = checkingEvents.filter(
       (event) => !displayedSortedEvents.includes(event)
@@ -92,7 +92,7 @@ export default function CalendarGrid() {
         const isCurrentMonth = isSameMonth(date, state.currentMonth);
         const isToday = isSameDay(date, currentDate);
         const formattedDate = format(date, "d");
-        const sortedEvents = sortEvents(date);
+        const sortedEvents = sortAllEvents(date);
 
         const dayClasses = [
           "day",
