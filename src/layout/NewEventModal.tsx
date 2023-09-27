@@ -3,6 +3,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 // Components
+import CheckboxInput from "../Components/CheckboxInput";
 import TimeInput from "../Components/TimeInput";
 import ColorRadioInput from "../Components/ColorRadioInput";
 // Types
@@ -13,6 +14,8 @@ import { PreviousTimeValuesType } from "../types/NewEventModalTypes";
 import format from "date-fns/format";
 import pl from "date-fns/locale/pl";
 import isValid from "date-fns/isValid";
+import TextInput from "../Components/TextInput";
+import ClosingBtn from "../Components/ClosingBtn";
 
 export default function NewEventModal() {
   const { state, dispatch } = useCalendar();
@@ -257,13 +260,7 @@ export default function NewEventModal() {
                 {editingEvent?.everyYear && "Od "}
                 {formattedDate}
               </time>
-              <button
-                className="close-btn"
-                aria-label="Zamknij okno"
-                onClick={closeNewTaskModal}
-              >
-                &times;
-              </button>
+              <ClosingBtn onClickFunction={closeNewTaskModal} />
             </header>
             <form
               autoComplete="off"
@@ -274,43 +271,30 @@ export default function NewEventModal() {
             >
               <fieldset className="form-group">
                 <legend className="visually-hidden">Nazwa wydarzenia</legend>
-                <label htmlFor="name">Nazwa</label>
-                <input
-                  type="text"
+                <TextInput
                   name="name"
-                  id="name"
-                  required
+                  isRequired
                   minLength={1}
                   maxLength={50}
-                  value={editingEvent ? editingEvent.eventName : newEvent.eventName}
-                  onChange={handleEventNameChange}
+                  inputValue={editingEvent ? editingEvent.eventName : newEvent.eventName}
+                  onChangeFunction={handleEventNameChange}
                 />
               </fieldset>
 
               <fieldset className="checkbox-wrapper">
                 <legend className="visually-hidden">Ustawienia Wydarzenia</legend>
-                <div className="form-group checkbox">
-                  <input
-                    type="checkbox"
-                    name="all-day"
-                    id="all-day"
-                    checked={editingEvent ? editingEvent.allDayStatus : newEvent.allDayStatus}
-                    onChange={handleAllDayEventCheckboxChange}
-                  />
-                  <label htmlFor="all-day">Cały dzień?</label>
-                </div>
+                <CheckboxInput
+                  name="all-day"
+                  checkedStatus={editingEvent ? editingEvent.allDayStatus : newEvent.allDayStatus}
+                  onChangeFunction={handleAllDayEventCheckboxChange}
+                />
                 {((newEvent && !editingEvent) || editingEvent?.everyYear) && (
-                  <div className="form-group checkbox">
-                    <input
-                      type="checkbox"
-                      name="every-year"
-                      id="every-year"
-                      checked={editingEvent?.everyYear}
-                      disabled={editingEvent?.everyYear}
-                      onChange={handleEveryYearEventCheckboxChange}
-                    />
-                    <label htmlFor="every-year">Każdego roku?</label>
-                  </div>
+                  <CheckboxInput
+                    name="every-year"
+                    checkedStatus={editingEvent?.everyYear}
+                    disabledStatus={editingEvent?.everyYear}
+                    onChangeFunction={handleEveryYearEventCheckboxChange}
+                  />
                 )}
               </fieldset>
 

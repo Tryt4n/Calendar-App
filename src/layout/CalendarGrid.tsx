@@ -17,8 +17,8 @@ import pl from "date-fns/locale/pl";
 
 export default function CalendarGrid() {
   const { state, dispatch } = useCalendar();
-
   const [maxEventButtons, setMaxEventButtons] = useState<number>();
+  const currentDate = new Date();
 
   function calculateMaxEventButtons() {
     const eventsContainer = document.querySelector(".events");
@@ -49,36 +49,62 @@ export default function CalendarGrid() {
     return () => window.removeEventListener("resize", handleResize);
   }, [state]);
 
+  function sortEvents(date: Date) {
+    return state.events
+      .filter((event) => {
+        const eventDate = new Date(event.eventDate);
+        return (
+          isSameDay(eventDate, date) ||
+          //? Creates events every year if they have `event.everyYear`
+          (event.everyYear &&
+            eventDate.getMonth() === date.getMonth() &&
+            eventDate.getDate() === date.getDate() &&
+            eventDate.getFullYear() <= date.getFullYear()) //? Creates events only after `eventDate` year
+        );
+      })
+      .sort(sortEventsByAllDayStatusAndStartTime);
+  }
+
   function openNewEventModal(date: Date) {
     dispatch({ type: REDUCER_ACTIONS.OPEN_NEW_TASK_MODAL, payload: date });
+  }
+
+  function showMoreEventsModal(date: Date) {
+    const checkingEvents = sortEvents(date);
+    const displayedSortedEvents = checkingEvents.slice(0, maxEventButtons);
+    const eventsToDisplay = checkingEvents.filter(
+      (event) => !displayedSortedEvents.includes(event)
+    );
+
+    return dispatch({
+      type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
+      payload: {
+        selectedDate: date,
+        isMoreEventsModalOpen: true,
+        eventsToDisplayInModal: eventsToDisplay,
+      },
+    });
   }
 
   return (
     <div className="days">
       {state.visibleDates.map((date, index) => {
-        const currentDate = new Date();
         const isCurrentMonth = isSameMonth(date, state.currentMonth);
         const isToday = isSameDay(date, currentDate);
         const formattedDate = format(date, "d");
-        const sortedEvents = state.events
-          .filter((event) => {
-            const eventDate = new Date(event.eventDate);
-            return (
-              isSameDay(eventDate, date) ||
-              //? Creates events every year if they have `event.everyYear`
-              (event.everyYear &&
-                eventDate.getMonth() === date.getMonth() &&
-                eventDate.getDate() === date.getDate() &&
-                eventDate.getFullYear() <= date.getFullYear()) //? Creates events only after `eventDate` year
-            );
-          })
-          .sort(sortEventsByAllDayStatusAndStartTime);
+        const sortedEvents = sortEvents(date);
+
+        const dayClasses = [
+          "day",
+          !isCurrentMonth && "non-month-day",
+          isBefore(date, currentDate) && !isToday && "old-month-day",
+        ]
+          .filter(Boolean)
+          .join(" ");
 
         return (
           <div
-            className={`day${!isCurrentMonth ? " non-month-day" : ""}${
-              isBefore(date, currentDate) && !isToday ? " old-month-day" : ""
-            }`}
+            className={dayClasses}
             key={date.toISOString()}
           >
             <div className="day-header">
@@ -108,21 +134,7 @@ export default function CalendarGrid() {
             {maxEventButtons && sortedEvents.length > maxEventButtons ? (
               <button
                 className="events-view-more-btn"
-                onClick={() => {
-                  const displayedSortedEvents = sortedEvents.slice(0, maxEventButtons);
-                  const eventsToDisplay = sortedEvents.filter(
-                    (event) => !displayedSortedEvents.includes(event)
-                  );
-
-                  return dispatch({
-                    type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
-                    payload: {
-                      selectedDate: date,
-                      isMoreEventsModalOpen: true,
-                      eventsToDisplayInModal: eventsToDisplay,
-                    },
-                  });
-                }}
+                onClick={() => showMoreEventsModal(date)}
               >{`+${sortedEvents.length - maxEventButtons} Więcej`}</button>
             ) : (
               ""

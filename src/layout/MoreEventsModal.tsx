@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 // Context
 import { useCalendar } from "../context/useCalendar";
 // Components
+import ClosingBtn from "../Components/ClosingBtn";
 import EventButton from "../Components/EventButton";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
@@ -48,6 +49,7 @@ export default function MoreEventsModal() {
     <>
       {state.isMoreEventsModalOpen && (
         <article className={`modal${isModalClosing ? " closing" : ""}`}>
+          <h2 className="visually-hidden">Więcej wydarzeń</h2>
           <div
             className="overlay"
             role="presentation"
@@ -55,12 +57,7 @@ export default function MoreEventsModal() {
           <div className="modal-body">
             <div className="modal-title">
               {formattedDate}
-              <button
-                className="close-btn"
-                onClick={closeModal}
-              >
-                &times;
-              </button>
+              <ClosingBtn onClickFunction={closeModal} />
             </div>
             <div className="events">
               {state.eventsToDisplayInModal.map((event) => (
