@@ -39,19 +39,32 @@ export default function CalendarGrid() {
   }
 
   useEffect(() => {
-    //? Calculates and sets the maxEventButtons after page load
-    const initialMaxEventButtons = calculateMaxEventButtons();
+    let initialMaxEventButtons: number;
+
+    if (width >= 840) {
+      initialMaxEventButtons = calculateMaxEventButtons();
+    } else {
+      initialMaxEventButtons = 2;
+    }
+
     setMaxEventButtons(initialMaxEventButtons);
 
     function handleResize() {
-      const newMaxEventButtons = calculateMaxEventButtons();
+      let newMaxEventButtons: number;
+
+      if (width >= 840) {
+        newMaxEventButtons = calculateMaxEventButtons();
+      } else {
+        newMaxEventButtons = 2;
+      }
+
       setMaxEventButtons(newMaxEventButtons);
     }
 
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
-  }, [state]);
+  }, [state, width]);
 
   function sortAllEvents(date: Date) {
     return state.events
