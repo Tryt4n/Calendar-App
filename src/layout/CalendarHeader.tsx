@@ -35,7 +35,7 @@ export default function CalendarHeader() {
 
   return (
     <header className="header">
-      <nav>
+      <nav className="navigation-header">
         <h2 className="visually-hidden">Wybór miesiąca</h2>
         <button
           className="month-change-btn"

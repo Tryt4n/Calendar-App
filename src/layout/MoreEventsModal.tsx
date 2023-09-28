@@ -21,18 +21,20 @@ export default function MoreEventsModal() {
     : "";
 
   function closeModal() {
-    setIsModalClosing(true);
-    setTimeout(() => {
-      setIsModalClosing(false);
+    if (!state.isModalOpen) {
+      setIsModalClosing(true);
+      setTimeout(() => {
+        setIsModalClosing(false);
 
-      dispatch({
-        type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
-        payload: {
-          isMoreEventsModalOpen: false,
-          eventsToDisplayInModal: [],
-        },
-      });
-    }, 250);
+        dispatch({
+          type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
+          payload: {
+            isMoreEventsModalOpen: false,
+            eventsToDisplayInModal: [],
+          },
+        });
+      }, 250);
+    }
   }
   useEscapeKeyHandler(closeModal);
 

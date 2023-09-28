@@ -1,7 +1,8 @@
 // React
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // Custom Hooks
 import { useCalendar } from "../hooks/useCalendar";
+import useWindowSize from "../hooks/useWindowSize";
 // Types
 import { REDUCER_ACTIONS } from "../types/ContextTypes";
 // Components
@@ -17,8 +18,11 @@ import pl from "date-fns/locale/pl";
 
 export default function CalendarGrid() {
   const { state, dispatch } = useCalendar();
+  const { width } = useWindowSize();
   const [maxEventButtons, setMaxEventButtons] = useState<number>();
   const currentDate = new Date();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   function calculateMaxEventButtons() {
     const eventsContainer = document.querySelector(".events");
@@ -70,24 +74,23 @@ export default function CalendarGrid() {
   }
 
   function showMoreEventsModal(date: Date) {
-    const checkingEvents = sortAllEvents(date);
-    const displayedSortedEvents = checkingEvents.slice(0, maxEventButtons);
-    const eventsToDisplay = checkingEvents.filter(
-      (event) => !displayedSortedEvents.includes(event)
-    );
+    const allEvents = sortAllEvents(date);
 
     return dispatch({
       type: REDUCER_ACTIONS.HANDLE_MORE_EVENTS_MODAL_OPEN_STATE,
       payload: {
         selectedDate: date,
         isMoreEventsModalOpen: true,
-        eventsToDisplayInModal: eventsToDisplay,
+        eventsToDisplayInModal: allEvents,
       },
     });
   }
 
   return (
-    <div className="days">
+    <div
+      className="days"
+      ref={containerRef}
+    >
       {state.visibleDates.map((date, index) => {
         const isCurrentMonth = isSameMonth(date, state.currentMonth);
         const isToday = isSameDay(date, currentDate);
@@ -108,7 +111,9 @@ export default function CalendarGrid() {
             key={date.toISOString()}
           >
             <div className="day-header">
-              {index < 7 && <div className="week-name">{format(date, "EEE", { locale: pl })}</div>}
+              {(index < 7 || width < 840) && (
+                <div className="week-name">{format(date, "EEE", { locale: pl })}</div>
+              )}
               <div className={`day-number${isToday ? " today" : ""}`}>{formattedDate}</div>
               <button
                 className="add-event-btn"
@@ -134,6 +139,7 @@ export default function CalendarGrid() {
             {maxEventButtons && sortedEvents.length > maxEventButtons ? (
               <button
                 className="events-view-more-btn"
+                aria-label="Naciśnij aby wyświetlić wszystkie wydarzenia tego dnia."
                 onClick={() => showMoreEventsModal(date)}
               >{`+${sortedEvents.length - maxEventButtons} Więcej`}</button>
             ) : (
