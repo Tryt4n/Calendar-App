@@ -86,7 +86,7 @@ export type ReducerActionsType =
     }
   | {
       type: "editEventColor";
-      payload: string;
+      payload: "blue" | "red" | "green";
     }
   | {
       type: "editEvent";

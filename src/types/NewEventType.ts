@@ -5,6 +5,6 @@ export type NewEventType = {
   allDayStatus: boolean;
   startTime?: string;
   endTime?: string;
-  eventColor: string;
+  eventColor: "blue" | "red" | "green";
   everyYear?: boolean;
 };

@@ -23,7 +23,7 @@ export default function CheckboxInput({
         disabled={disabledStatus}
         onChange={onChangeFunction}
       />
-      <label htmlFor={name}>Cały dzień?</label>
+      <label htmlFor={name}>{`${name === "all-day" ? "Cały Dzień?" : "Każdego Roku?"}`}</label>
     </div>
   );
 }
