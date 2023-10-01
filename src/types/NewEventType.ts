@@ -1,3 +1,7 @@
+export const eventColors = ["blue", "red", "green"] as const;
+
+export type AllowedColorsType = (typeof eventColors)[number];
+
 export type NewEventType = {
   id: string;
   eventDate: Date;
@@ -5,6 +9,6 @@ export type NewEventType = {
   allDayStatus: boolean;
   startTime?: string;
   endTime?: string;
-  eventColor: "blue" | "red" | "green";
+  eventColor: AllowedColorsType;
   everyYear?: boolean;
 };

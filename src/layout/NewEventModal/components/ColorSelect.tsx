@@ -6,6 +6,7 @@ import { useCalendar } from "../../../hooks/useCalendar";
 import ColorRadioInput from "../../../Components/ColorRadioInput";
 // Types
 import { REDUCER_ACTIONS } from "../../../types/ContextTypes";
+import { AllowedColorsType } from "../../../types/NewEventType";
 
 export default function ColorSelect() {
   const { state, dispatch, newEvent, setNewEvent } = useCalendar();
@@ -13,11 +14,14 @@ export default function ColorSelect() {
 
   function handleEventColorChange(e: ChangeEvent<HTMLInputElement>) {
     if (editingEvent) {
-      dispatch({ type: REDUCER_ACTIONS.EDIT_EVENT_COLOR, payload: e.target.value });
+      dispatch({
+        type: REDUCER_ACTIONS.EDIT_EVENT_COLOR,
+        payload: e.target.value as AllowedColorsType,
+      });
     } else {
       setNewEvent((prevState) => ({
         ...prevState,
-        eventColor: e.target.value,
+        eventColor: e.target.value as AllowedColorsType,
       }));
     }
   }
